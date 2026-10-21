@@ -50,6 +50,15 @@ export class AskError extends Error {
 }
 
 export async function ask(question: string, lang: Lang, conversationId?: string): Promise<AskResult> {
+  if (DEMO) {
+    const { demoAsk, DemoAskError } = await import("./demoAsk");
+    const docs = queryKnowledge(await demoData(), { lang });
+    try {
+      return await demoAsk(question, docs, conversationId);
+    } catch (e) {
+      throw new AskError(e instanceof DemoAskError ? e.code : "unknown");
+    }
+  }
   const res = await fetch("/api/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
