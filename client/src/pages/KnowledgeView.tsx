@@ -17,7 +17,7 @@ export default function KnowledgeView() {
 
   return (
     <article className="item">
-      <Link to="/" className="back">{lang === "he" ? "→" : "←"} {t.back}</Link>
+      <Link to="/browse" className="back">{lang === "he" ? "→" : "←"} {t.back}</Link>
       {error && <p className="state error">{t.error}</p>}
       {!error && item === undefined && <p className="state">{t.loading}</p>}
       {item === null && <p className="state">{t.notFound}</p>}

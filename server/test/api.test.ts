@@ -4,7 +4,7 @@ import path from "node:path";
 import { createApp } from "../src/app.js";
 import { JsonKnowledgeStore } from "../src/store/JsonKnowledgeStore.js";
 
-const app = createApp(new JsonKnowledgeStore(path.join(__dirname, "..", "data", "knowledge.json")));
+const app = createApp(new JsonKnowledgeStore(path.join(__dirname, "..", "data", "knowledge.json")), null);
 
 describe("knowledge API", () => {
   it("lists all 12 sample items", async () => {

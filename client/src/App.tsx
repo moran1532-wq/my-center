@@ -1,5 +1,6 @@
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, NavLink, Route, Routes } from "react-router-dom";
 import { useLang } from "./i18n";
+import AskPage from "./pages/AskPage";
 import KnowledgeList from "./pages/KnowledgeList";
 import KnowledgeView from "./pages/KnowledgeView";
 
@@ -15,11 +16,16 @@ export default function App() {
             <small>{t.appTagline}</small>
           </span>
         </Link>
+        <nav className="tabs">
+          <NavLink to="/" end>{t.navAsk}</NavLink>
+          <NavLink to="/browse">{t.navBrowse}</NavLink>
+        </nav>
         <button className="lang-btn" onClick={toggle}>{t.switchTo}</button>
       </header>
       <main className="content">
         <Routes>
-          <Route path="/" element={<KnowledgeList />} />
+          <Route path="/" element={<AskPage />} />
+          <Route path="/browse" element={<KnowledgeList />} />
           <Route path="/item/:id" element={<KnowledgeView />} />
         </Routes>
       </main>

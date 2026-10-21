@@ -16,3 +16,6 @@
 - Server-side refusal fallback: fallbacks "default" (beta server-side-fallback-2026-07-01)
 - Claude key only on the server (ANTHROPIC_API_KEY env), never in the browser
 - Tests use a fake Claude client - no real calls in tests
+
+## Before going live (from security check)
+- No login yet: must connect to the internal system's login (behind VPN) before deployment

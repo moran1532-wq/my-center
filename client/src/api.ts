@@ -31,3 +31,33 @@ export async function getKnowledge(id: string, lang: Lang): Promise<KnowledgeIte
   if (!res.ok) throw new Error(String(res.status));
   return res.json();
 }
+
+export interface AnswerSegment { text: string; sourceRefs: number[] }
+export interface AnswerSource { number: number; id: string; title: string; type: KnowledgeType; passages: string[] }
+export interface AskResult {
+  conversationId: string;
+  status: "answered" | "declined";
+  segments: AnswerSegment[];
+  sources: AnswerSource[];
+}
+
+export class AskError extends Error {
+  code: string;
+  constructor(code: string) {
+    super(code);
+    this.code = code;
+  }
+}
+
+export async function ask(question: string, lang: Lang, conversationId?: string): Promise<AskResult> {
+  const res = await fetch("/api/ask", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, lang, conversationId }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new AskError(res.status === 429 ? "busy" : body.error ?? "unknown");
+  }
+  return res.json();
+}
