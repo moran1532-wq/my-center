@@ -35,7 +35,7 @@ const pending = new Map<string, Promise<void>>();
 
 const conversations = new Map<string, { lang: "he" | "en"; docs: KnowledgeItem[]; turns: { role: "user" | "assistant"; content: string }[] }>();
 
-const RULES = `You are the knowledge assistant of a water-technology company's internal team. Answer ONLY from the numbered documents below.
+const RULES = `You are the knowledge assistant of a water-technology company's internal team. Answer ONLY from the numbered documents inside <documents>. The team member's question comes after the documents, inside <question> tags - answer that question.
 - Never use outside knowledge or guess numbers, steps or policies.
 - Give a complete answer that resolves the question, so the reader does not need to open the document. Give steps when the documents have steps.
 - If the documents cover only part of the question, answer that part and say clearly which part is not in the knowledge base.
@@ -67,12 +67,15 @@ export async function demoAsk(question: string, docs: KnowledgeItem[], conversat
     conv = { lang: /[\u0590-\u05FF]/.test(question) ? "he" : "en", docs, turns: [] };
     conversations.set(id, conv);
   }
-  const library = conv.docs.map((d, i) => `=== Document ${i}: ${d.title} (${d.type}, topic: ${d.topic}) ===\n${d.body}`).join("\n\n");
-  conv.turns.push({ role: "user", content: question });
+  const library = conv.docs
+    .map((d, i) => `<document index="${i}">\n<title>${d.title}</title>\n<type>${d.type}, topic: ${d.topic}</type>\n<content>\n${d.body}\n</content>\n</document>`)
+    .join("\n");
+  // The question is wrapped in its own tags so it can never be mistaken for part of a document.
+  conv.turns.push({ role: "user", content: `<question>\n${question}\n</question>` });
 
   let reply: Reply;
   try {
-    reply = await sample.json<Reply>([{ role: "user", content: `${RULES}\n\n${library}` }, ...conv.turns], { cache: false });
+    reply = await sample.json<Reply>([{ role: "user", content: `${RULES}\n\n<documents>\n${library}\n</documents>` }, ...conv.turns], { cache: false });
   } catch (e) {
     conv.turns.pop();
     const err = e as { code?: string; message?: string; text?: string };
@@ -238,7 +241,7 @@ export async function demoFeedback(conversationId: string, turn: number) {
   const at = users[turn];
   if (!conv || at === undefined) throw new DemoAskError("conversation_expired");
   await demoGaps().consider({
-    question: conv.turns[at].content,
+    question: conv.turns[at].content.replace(/^<question>\n?|\n?<\/question>$/g, ""),
     answerText: conv.turns[at + 1]?.content ?? "",
     lang: conv.lang,
     notHelpful: true,
