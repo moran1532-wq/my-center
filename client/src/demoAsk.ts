@@ -4,6 +4,10 @@ import type { AskResult, AnswerSource, KnowledgeItem } from "./api";
 import { GapService } from "../../server/src/gaps/GapService";
 import { buildAnalyzerPrompt } from "../../server/src/gaps/analyzerPrompt";
 import type { AnalyzeGap, Gap, GapStatus, GapStore, GapVerdict } from "../../server/src/gaps/types";
+import { ReportService } from "../../server/src/reports/ReportService";
+import { PersistedRecipients, PersistedReports, PersistedStats, type Persist } from "../../server/src/reports/collections";
+import { buildReportHtml, reportSubject } from "../../server/src/reports/reportHtml";
+import type { Recipient, ReportData, QuestionStat } from "../../server/src/reports/types";
 
 interface SampleFn {
   json<T>(input: { role: "user" | "assistant"; content: string }[], opts?: object): Promise<T>;
@@ -151,10 +155,72 @@ const sampleAnalyzer: AnalyzeGap = async (candidate, existing) => {
   };
 };
 
+/** A list kept in this browser (memory only if storage is blocked). */
+class LocalPersist<T> implements Persist<T> {
+  private mem: T[] | null = null;
+  private readonly key: string;
+  constructor(key: string) {
+    this.key = key;
+  }
+  async read(): Promise<T[]> {
+    if (!this.mem) {
+      try {
+        this.mem = JSON.parse(localStorage.getItem(this.key) ?? "[]");
+      } catch {
+        this.mem = [];
+      }
+    }
+    return structuredClone(this.mem!);
+  }
+  async write(items: T[]) {
+    this.mem = structuredClone(items);
+    try {
+      localStorage.setItem(this.key, JSON.stringify(items));
+    } catch {
+      /* memory only */
+    }
+  }
+}
+
+const stats = new PersistedStats(new LocalPersist<QuestionStat>("preview-stats"));
+const recipients = new PersistedRecipients(new LocalPersist<Recipient>("preview-recipients"), () => crypto.randomUUID());
+const reports = new PersistedReports(new LocalPersist<ReportData>("preview-reports"));
+
 let gapService: GapService | null = null;
 export function demoGaps() {
-  gapService ??= new GapService(sampleAnalyzer, new LocalGapStore(), () => crypto.randomUUID());
+  gapService ??= new GapService(sampleAnalyzer, new LocalGapStore(), () => crypto.randomUUID()).withStats(stats);
   return gapService;
+}
+
+export function demoRecipients() {
+  return recipients;
+}
+
+let reportService: ReportService | null = null;
+export function demoReports() {
+  reportService ??= new ReportService({ gaps: demoGaps(), stats, recipients, reports, mailer: null, newId: () => crypto.randomUUID() });
+  const svc = reportService;
+  const summary = (r: ReportData) => ({
+    id: r.id, createdAt: r.createdAt, periodStart: r.periodStart, trigger: r.trigger, stats: r.stats,
+    gapCount: r.gaps.length, newCount: r.gaps.filter((g) => g.isNew).length, delivery: r.delivery,
+    subjects: { he: reportSubject(r, "he"), en: reportSubject(r, "en") },
+  });
+  const find = async (id: string) => {
+    const r = await svc.get(id);
+    if (!r) throw new Error("not found");
+    return r;
+  };
+  return {
+    async listSummaries() {
+      return { reports: (await svc.list()).map(summary), nextDue: (await svc.nextDue()).toISOString() };
+    },
+    async generate() {
+      return summary(await svc.generate("manual"));
+    },
+    async html(id: string, lang: "he" | "en") {
+      return buildReportHtml(await find(id), lang);
+    },
+  };
 }
 
 export async function demoFeedback(conversationId: string, turn: number) {

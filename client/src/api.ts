@@ -107,3 +107,52 @@ export async function setGapStatus(id: string, action: "dismiss" | "restore"): P
   }
   await post(`/api/gaps/${encodeURIComponent(id)}/${action}`);
 }
+
+// ---- reports ----
+import type { Recipient, ReportData } from "../../server/src/reports/types";
+export type { Recipient };
+export interface ReportSummary {
+  id: string; createdAt: string; periodStart: string; trigger: ReportData["trigger"];
+  stats: ReportData["stats"]; gapCount: number; newCount: number; delivery: ReportData["delivery"];
+  subjects: { he: string; en: string };
+}
+
+export async function listReports(): Promise<{ reports: ReportSummary[]; nextDue: string | null }> {
+  if (DEMO) return (await import("./demoAsk")).demoReports().listSummaries();
+  const res = await fetch("/api/reports");
+  if (!res.ok) throw new Error(String(res.status));
+  return res.json();
+}
+
+export async function generateReport(): Promise<ReportSummary> {
+  if (DEMO) return (await import("./demoAsk")).demoReports().generate();
+  return post("/api/reports");
+}
+
+export async function reportHtml(id: string, lang: Lang): Promise<string> {
+  if (DEMO) return (await import("./demoAsk")).demoReports().html(id, lang);
+  const res = await fetch(`/api/reports/${encodeURIComponent(id)}/html?lang=${lang}`);
+  if (!res.ok) throw new Error(String(res.status));
+  return res.text();
+}
+
+export async function listRecipients(): Promise<Recipient[]> {
+  if (DEMO) return (await import("./demoAsk")).demoRecipients().list();
+  const res = await fetch("/api/recipients");
+  if (!res.ok) throw new Error(String(res.status));
+  return res.json();
+}
+
+export async function addRecipient(r: Omit<Recipient, "id">): Promise<Recipient> {
+  if (DEMO) return (await import("./demoAsk")).demoRecipients().add(r);
+  return post("/api/recipients", r);
+}
+
+export async function removeRecipient(id: string): Promise<void> {
+  if (DEMO) {
+    await (await import("./demoAsk")).demoRecipients().remove(id);
+    return;
+  }
+  const res = await fetch(`/api/recipients/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!res.ok) throw new Error(String(res.status));
+}

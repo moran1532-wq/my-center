@@ -4,6 +4,7 @@ import AskPage from "./pages/AskPage";
 import KnowledgeList from "./pages/KnowledgeList";
 import KnowledgeView from "./pages/KnowledgeView";
 import GapsPage from "./pages/GapsPage";
+import ReportsPage from "./pages/ReportsPage";
 
 export default function App() {
   const { t, toggle } = useLang();
@@ -21,6 +22,7 @@ export default function App() {
           <NavLink to="/" end>{t.navAsk}</NavLink>
           <NavLink to="/browse">{t.navBrowse}</NavLink>
           <NavLink to="/gaps">{t.navGaps}</NavLink>
+          <NavLink to="/reports">{t.navReports}</NavLink>
         </nav>
         <button className="lang-btn" onClick={toggle}>{t.switchTo}</button>
       </header>
@@ -30,6 +32,7 @@ export default function App() {
           <Route path="/browse" element={<KnowledgeList />} />
           <Route path="/item/:id" element={<KnowledgeView />} />
           <Route path="/gaps" element={<GapsPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
         </Routes>
       </main>
     </div>

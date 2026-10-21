@@ -1,4 +1,5 @@
 import type { AnalyzeGap, Gap, GapCandidate, GapReason, GapStore } from "./types.js";
+import type { StatsStore } from "../reports/types.js";
 
 export const MAX_EXAMPLES = 5;
 
@@ -9,12 +10,19 @@ export class GapService {
   private readonly store: GapStore;
   private readonly newId: () => string;
   private readonly now: () => Date;
+  private stats: StatsStore | null = null;
 
   constructor(analyze: AnalyzeGap, store: GapStore, newId: () => string, now: () => Date = () => new Date()) {
     this.analyze = analyze;
     this.store = store;
     this.newId = newId;
     this.now = now;
+  }
+
+  /** Count every analysed question's outcome (no text kept) for the report's numbers. */
+  withStats(stats: StatsStore) {
+    this.stats = stats;
+    return this;
   }
 
   /** Analyses one question. Runs one at a time so two similar questions never create two gaps. */
@@ -27,6 +35,7 @@ export class GapService {
   private async considerNow(c: GapCandidate): Promise<Gap | null> {
     const all = await this.store.list();
     const verdict = await this.analyze(c, all.map(({ id, titleHe, titleEn }) => ({ id, titleHe, titleEn })));
+    if (!c.notHelpful) await this.stats?.record({ outcome: verdict.kind, at: this.now().toISOString() });
     if (verdict.kind === "off_topic") return null;
     if (verdict.kind === "answered" && !c.notHelpful) return null;
 

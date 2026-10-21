@@ -22,7 +22,7 @@ See: .planning/PROJECT.md (updated 2026-10-21)
 
 Phase: 4 of 5 (Gap Report)
 Plan: 0 of 0 in current phase
-Status: Ready to discuss
+Status: Built - awaiting acceptance test
 Last activity: 2026-10-21 - Project scoped, summary and 5-phase roadmap approved by owner
 
 Progress: [██████░░░░] 60%
@@ -36,3 +36,4 @@ Progress: [██████░░░░] 60%
 - 2026-10-21: Phase 2 acceptance passed 5/5 in preview (blank-screen bug found in test 1: scrollIntoView in frame → fixed). OPEN before going live: run the server path once with a real ANTHROPIC_API_KEY; add login. Next: phase 3 discussion.
 - 2026-10-21: Phase 3 built (gap analyzer w/ structured output, GapService shared with preview, JSON gap file, gaps tab, didn't-help, not-a-gap + undo). 27 tests pass. Next: owner acceptance.
 - 2026-10-21: Phase 3 acceptance passed 6/6 (found+fixed: didn't-help double count race; added gaps auto refresh). Next: phase 4 discussion.
+- 2026-10-21: Phase 4 built (stats, HTML report builder, ReportService + 3-day 08:00 schedule, SMTP mailer tested against local SMTP, reports tab, owners list). 40 tests. Next: owner acceptance.

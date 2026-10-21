@@ -6,12 +6,27 @@ import type { KnowledgeStore } from "./store/KnowledgeStore.js";
 import type { KnowledgeType, Lang } from "./types.js";
 import { ConversationNotFoundError, ConversationTooLongError, type AnswerService } from "./answer/AnswerService.js";
 import type { GapService } from "./gaps/GapService.js";
+import type { ReportService } from "./reports/ReportService.js";
+import type { RecipientStore, ReportData } from "./reports/types.js";
+import { buildReportHtml, reportSubject } from "./reports/reportHtml.js";
 
 const TYPES: KnowledgeType[] = ["procedure", "document", "customer_answer"];
 const langOf = (v: unknown): Lang => (v === "en" ? "en" : "he");
 const MAX_QUESTION = 2000;
 
-export function createApp(store: KnowledgeStore, answers: AnswerService | null, gaps: GapService | null = null) {
+export interface Reporting {
+  service: ReportService;
+  recipients: RecipientStore;
+}
+
+const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/;
+
+export function createApp(
+  store: KnowledgeStore,
+  answers: AnswerService | null,
+  gaps: GapService | null = null,
+  reporting: Reporting | null = null,
+) {
   const app = express();
   // Only origins listed in ALLOWED_ORIGINS may call the API from a browser.
   // In development the client goes through the Vite proxy, so none are needed.
@@ -116,6 +131,52 @@ export function createApp(store: KnowledgeStore, answers: AnswerService | null, 
       res.json(gap);
     });
   }
+
+  // ---- reports ----
+  const summary = (r: ReportData) => ({
+    id: r.id, createdAt: r.createdAt, periodStart: r.periodStart, trigger: r.trigger, stats: r.stats,
+    gapCount: r.gaps.length, newCount: r.gaps.filter((g) => g.isNew).length, delivery: r.delivery,
+    subjects: { he: reportSubject(r, "he"), en: reportSubject(r, "en") },
+  });
+  const reportLimit = rateLimit({ windowMs: 60_000, limit: 5, standardHeaders: true, legacyHeaders: false });
+
+  app.get("/api/reports", async (_req, res) => {
+    if (!reporting) return res.json({ reports: [], nextDue: null });
+    const reports = await reporting.service.list();
+    res.json({ reports: reports.map(summary), nextDue: (await reporting.service.nextDue()).toISOString() });
+  });
+
+  app.post("/api/reports", reportLimit, async (_req, res) => {
+    if (!reporting) return res.status(503).json({ error: "reports_off" });
+    res.json(summary(await reporting.service.generate("manual")));
+  });
+
+  app.get("/api/reports/:id/html", async (req, res) => {
+    const r = reporting && (await reporting.service.get(req.params.id));
+    if (!r) return res.status(404).json({ error: "not found" });
+    res.set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; img-src data:");
+    res.type("html").send(buildReportHtml(r, langOf(req.query.lang)));
+  });
+
+  // ---- knowledge owners who get the report ----
+  app.get("/api/recipients", async (_req, res) => {
+    res.json(reporting ? await reporting.recipients.list() : []);
+  });
+
+  app.post("/api/recipients", async (req, res) => {
+    if (!reporting) return res.status(503).json({ error: "reports_off" });
+    const { name, email, lang } = req.body ?? {};
+    if (typeof name !== "string" || !name.trim() || name.length > 100) return res.status(400).json({ error: "invalid name" });
+    if (typeof email !== "string" || !EMAIL.test(email.trim())) return res.status(400).json({ error: "invalid email" });
+    if ((await reporting.recipients.list()).length >= 50) return res.status(400).json({ error: "too many" });
+    res.json(await reporting.recipients.add({ name: name.trim(), email: email.trim(), lang: langOf(lang) }));
+  });
+
+  app.delete("/api/recipients/:id", async (req, res) => {
+    if (!reporting) return res.status(503).json({ error: "reports_off" });
+    if (!(await reporting.recipients.remove(req.params.id))) return res.status(404).json({ error: "not found" });
+    res.json({ ok: true });
+  });
 
   return app;
 }
