@@ -2,11 +2,11 @@
 gsd_state_version: '1.0'
 status: planning
 progress:
-  total_phases: 5
+  total_phases: 8
   completed_phases: 5
   total_plans: 0
   completed_plans: 0
-  percent: 100
+  percent: 62
 ---
 
 # Project State
@@ -16,16 +16,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-21)
 
 **Core value:** Accurate answers grounded only in the company's knowledge
-**Current focus:** Phase 5 - Knowledge Upload
+**Current focus:** Phase 6 - Cost Meter And Smart Search
 
 ## Current Position
 
-Phase: 5 of 5 (Knowledge Upload)
+Phase: 6 of 8 (Cost Meter And Smart Search) - milestone 2
 Plan: 0 of 0 in current phase
-Status: Milestone complete
+Status: Ready to discuss
 Last activity: 2026-10-21 - Project scoped, summary and 5-phase roadmap approved by owner
 
-Progress: [██████████] 100%
+Progress: [██████░░░░] 62%
 
 ## Session Log
 - 2026-10-21: Scoping done in a cloud session. Owner chose to continue on her own computer
@@ -41,3 +41,4 @@ Progress: [██████████] 100%
 - 2026-10-21: Phase 5 built (two-step upload: file/link/paste → Claude analysis + gap check → translate + save + close gaps; closed tab; report 'closed since'). 57 tests. Security: login now HIGH before go-live. Next: owner acceptance.
 - 2026-10-21: Phase 5 acceptance passed 5/5 (found+fixed: question confused with doc title in preview; stricter gap-closing rule; copy buttons added on request). Milestone gate: sign-in added (proxy/dev, owner/member, guard test), CI + dependabot, security 0 open findings. MILESTONE v1 COMPLETE. Deferred: Teams, intranet-wide ingestion.
 - 2026-10-21: Owner chose to stop after milestone. Resume: open a session with this repo and say 'נחמיה, ממשיכים'. Open items: real key/SMTP/link test in their network; next milestone candidates: Teams, intranet ingestion.
+- 2026-10-21: Milestone 2 "cost-efficient system" opened and approved (phases 6-8).
