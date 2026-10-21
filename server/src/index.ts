@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
 import { createApp } from "./app.js";
 import { authFromEnv } from "./auth.js";
-import { JsonKnowledgeStore } from "./store/JsonKnowledgeStore.js";
+import { JsonKnowledgeStore, type ArchiveEntry } from "./store/JsonKnowledgeStore.js";
 import { AnswerService, claudeCreateMessage } from "./answer/AnswerService.js";
 import { SmartRetriever } from "./answer/Retriever.js";
 import { AnswerMemory, type MemoryEntry } from "./answer/AnswerMemory.js";
@@ -26,7 +26,11 @@ const dataFile = process.env.KNOWLEDGE_FILE ?? path.join(here, "..", "data", "kn
 const port = Number(process.env.PORT ?? 3001);
 
 const dataDir = process.env.DATA_DIR ?? path.join(here, "..", "data");
-const store = new JsonKnowledgeStore(dataFile, new JsonFilePersist<StoredKnowledgeItem>(path.join(dataDir, "uploaded.json")));
+const store = new JsonKnowledgeStore(
+  dataFile,
+  new JsonFilePersist<StoredKnowledgeItem>(path.join(dataDir, "uploaded.json")),
+  new JsonFilePersist<ArchiveEntry>(path.join(dataDir, "archived.json")),
+);
 
 const client = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
 const usage = new UsageMeter(new JsonFilePersist<UsageRecord>(path.join(dataDir, "usage.json")));

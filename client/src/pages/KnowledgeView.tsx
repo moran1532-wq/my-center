@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { getKnowledge, type KnowledgeItem } from "../api";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { archiveDoc, getKnowledge, restoreDoc, type KnowledgeItem } from "../api";
+import { useIsOwner } from "../role";
 import { useLang } from "../i18n";
 import TypeBadge from "../TypeBadge";
 
@@ -9,6 +10,38 @@ export default function KnowledgeView() {
   const { t, lang } = useLang();
   const [item, setItem] = useState<KnowledgeItem | null | undefined>();
   const [error, setError] = useState(false);
+  const isOwner = useIsOwner();
+  const navigate = useNavigate();
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState("");
+
+  async function remove() {
+    if (!item) return;
+    setBusy(true);
+    try {
+      const r = await archiveDoc(item.id);
+      navigate("/browse", { state: { notice: t.removedOk(r.reopened.length) } });
+    } catch {
+      setError(true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function restore() {
+    if (!item) return;
+    setBusy(true);
+    try {
+      await restoreDoc(item.id);
+      setItem({ ...item, archived: false });
+      setNotice(t.restoredOk);
+    } catch {
+      setError(true);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   useEffect(() => {
     setItem(undefined);
@@ -23,6 +56,13 @@ export default function KnowledgeView() {
       {item === null && <p className="state">{t.notFound}</p>}
       {item && (
         <>
+          {item.archived && (
+            <div className="archived-banner" role="status">
+              <span>{t.archivedBanner}</span>
+              {isOwner && <button className="primary" onClick={restore} disabled={busy}>{t.restoreDoc}</button>}
+            </div>
+          )}
+          {notice && <p className="verdict ok" role="status">✓ {notice}</p>}
           <div className="card-head">
             <TypeBadge type={item.type} />
             {item.isSample && <span className="sample">{t.sample}</span>}
@@ -36,6 +76,21 @@ export default function KnowledgeView() {
               <div><dt>{t.sourceLink}</dt><dd><a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" dir="ltr">{new URL(item.sourceUrl).hostname}</a></dd></div>
             )}
           </dl>
+          {isOwner && !item.archived && (
+            <div className="doc-actions">
+              {confirming ? (
+                <div className="confirm-box" role="alertdialog" aria-label={t.removeDoc}>
+                  <span dir="auto">{t.confirmRemoveDoc(item.title)}</span>
+                  <span className="owner-actions">
+                    <button className="danger" onClick={remove} disabled={busy}>{t.yesRemove}</button>
+                    <button className="ghost" onClick={() => setConfirming(false)} disabled={busy}>{t.cancel}</button>
+                  </span>
+                </div>
+              ) : (
+                <button className="ghost" onClick={() => setConfirming(true)}>{t.removeDoc}</button>
+              )}
+            </div>
+          )}
           <div className="body" dir="auto">
             {item.body.split(/\n\s*\n/).map((p, n) => (
               <p key={n}>{p}</p>

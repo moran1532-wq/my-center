@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { listKnowledge, type KnowledgeSummary, type KnowledgeType } from "../api";
+import { Link, useLocation } from "react-router-dom";
+import { listArchived, listKnowledge, type KnowledgeSummary, type KnowledgeType } from "../api";
 import { useLang } from "../i18n";
 import TypeBadge from "../TypeBadge";
 import UploadDialog from "../UploadDialog";
@@ -18,6 +18,9 @@ export default function KnowledgeList() {
   const [adding, setAdding] = useState(false);
   const isOwner = useIsOwner();
   const [large, setLarge] = useState(largeMode());
+  const [showRemoved, setShowRemoved] = useState(false);
+  const [removed, setRemoved] = useState<KnowledgeSummary[]>([]);
+  const notice = (useLocation().state as { notice?: string } | null)?.notice;
   const [reload, setReload] = useState(0);
 
   useEffect(() => {
@@ -32,6 +35,10 @@ export default function KnowledgeList() {
       clearTimeout(handle);
     };
   }, [lang, type, q, reload]);
+
+  useEffect(() => {
+    if (isOwner) listArchived(lang).then(setRemoved).catch(() => setRemoved([]));
+  }, [isOwner, lang, reload]);
 
   const label = (f: KnowledgeType | undefined) =>
     f === undefined ? t.all : f === "procedure" ? t.procedures : f === "document" ? t.documents : t.customer_answers;
@@ -68,6 +75,25 @@ export default function KnowledgeList() {
           <input id="large-mode" type="checkbox" checked={large} onChange={(e) => { setLargeMode(e.target.checked); setLarge(e.target.checked); setReload((n) => n + 1); }} />
           <span><strong>{t.largeMode}</strong> <span className="muted small">{t.largeModeHint}</span></span>
         </label>
+      )}
+      {notice && <p className="verdict ok" role="status">✓ {notice}</p>}
+      {isOwner && removed.length > 0 && (
+        <button className="link-btn removed-toggle" onClick={() => setShowRemoved(!showRemoved)}>
+          {showRemoved ? t.backToActive : t.showArchived(removed.length)}
+        </button>
+      )}
+      {showRemoved && (
+        <ul className="cards">
+          {removed.map((i) => (
+            <li key={i.id}>
+              <Link to={`/item/${i.id}`} className="card card-removed">
+                <div className="card-head"><TypeBadge type={i.type} /></div>
+                <h3 dir="auto">{i.title}</h3>
+                <p className="muted small">{t.archivedBanner}</p>
+              </Link>
+            </li>
+          ))}
+        </ul>
       )}
       {error && <p className="state error">{t.error}</p>}
       {!error && items === null && <p className="state">{t.loading}</p>}

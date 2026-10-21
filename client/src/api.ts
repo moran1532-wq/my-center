@@ -14,7 +14,11 @@ const demoData = async (): Promise<StoredKnowledgeItem[]> =>
 const summarize = ({ body, ...rest }: KnowledgeItem): KnowledgeSummary => ({ ...rest, excerpt: body.slice(0, 160) });
 
 /** Preview: sample data + documents uploaded in this browser. */
-const demoAll = async (): Promise<StoredKnowledgeItem[]> => [...(await (await import("./demoAsk")).demoUploads()), ...(await demoData())];
+const demoAllIncludingRemoved = async (): Promise<StoredKnowledgeItem[]> => [...(await (await import("./demoAsk")).demoUploads()), ...(await demoData())];
+const demoAll = async (): Promise<StoredKnowledgeItem[]> => {
+  const gone = await (await import("./demoAsk")).demoArchivedIds();
+  return (await demoAllIncludingRemoved()).filter((i) => !gone.has(i.id));
+};
 
 export async function listKnowledge(lang: Lang, type?: KnowledgeType, q?: string): Promise<KnowledgeSummary[]> {
   if (DEMO) return queryKnowledge(await demoAll(), { lang, type, q }).map(summarize);
@@ -28,8 +32,10 @@ export async function listKnowledge(lang: Lang, type?: KnowledgeType, q?: string
 
 export async function getKnowledge(id: string, lang: Lang): Promise<KnowledgeItem | null> {
   if (DEMO) {
-    const item = (await demoAll()).find((i) => i.id === id);
-    return item ? localize(item, lang) : null;
+    const item = (await demoAllIncludingRemoved()).find((i) => i.id === id);
+    if (!item) return null;
+    const gone = await (await import("./demoAsk")).demoArchivedIds();
+    return gone.has(id) ? { ...localize(item, lang), archived: true } : localize(item, lang);
   }
   const res = await fetch(`/api/knowledge/${encodeURIComponent(id)}?lang=${lang}`);
   if (res.status === 404) return null;
@@ -252,4 +258,23 @@ export function setLargeMode(on: boolean) {
   } catch {
     /* ignore */
   }
+}
+
+// ---- removing documents (knowledge owners) ----
+export async function archiveDoc(id: string): Promise<{ reopened: { id: string }[] }> {
+  if (DEMO) return (await import("./demoAsk")).demoArchive(id);
+  return post(`/api/knowledge/${encodeURIComponent(id)}/archive`);
+}
+export async function restoreDoc(id: string): Promise<void> {
+  if (DEMO) return (await import("./demoAsk")).demoRestore(id);
+  await post(`/api/knowledge/${encodeURIComponent(id)}/restore`);
+}
+export async function listArchived(lang: Lang): Promise<KnowledgeSummary[]> {
+  if (DEMO) {
+    const gone = await (await import("./demoAsk")).demoArchivedIds();
+    return queryKnowledge((await demoAllIncludingRemoved()).filter((i) => gone.has(i.id)), { lang }).map(summarize);
+  }
+  const res = await fetch(`/api/knowledge-archived?lang=${lang}`);
+  if (!res.ok) throw new Error(String(res.status));
+  return ((await res.json()) as KnowledgeItem[]).map(summarize);
 }

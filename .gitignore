@@ -11,3 +11,4 @@ server/data/*.tmp
 server/data/uploaded.json
 server/data/usage.json
 server/data/answer-memory.json
+server/data/archived.json

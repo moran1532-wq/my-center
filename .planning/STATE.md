@@ -44,3 +44,4 @@ Progress: [██████████] 100%
 - 2026-10-21: Milestone 2 "cost-efficient system" opened and approved (phases 6-8).
 - 2026-10-21: Milestone 2 built (owner: "build everything, tell me when done"): cost meter, smart search (BM25 he/en, >=20 docs, top 6), answer memory (30 days, emptied on knowledge change), coverage mark → gap check only when needed. 89 tests, security 0 findings. Next: owner acceptance of phases 6-8 + confirm phase 7/8 recommendations.
 - 2026-10-21: Milestone 2 acceptance passed 4/4 (search 6 of 42 docs, combined 3 docs; memory hit; memory emptied on upload; didn't-help forgets). Owner confirmed phase 7/8 choices by passing tests. MILESTONE 2 COMPLETE.
+- 2026-10-21: Added remove-from-knowledge-base (owners only, archive + restore, reopens/recloses gaps, empties memory). 91 tests, 0 findings.

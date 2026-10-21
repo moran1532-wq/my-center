@@ -129,6 +129,20 @@ export class GapService {
     return gap;
   }
 
+  /** The document that closed these gaps was removed - the gaps are open again. */
+  async reopenClosedBy(itemId: string): Promise<Gap[]> {
+    const reopened: Gap[] = [];
+    for (const g of await this.store.list("closed")) {
+      if (g.closedByItemId !== itemId) continue;
+      g.status = "open";
+      delete g.closedAt;
+      delete g.closedByItemId;
+      await this.store.save(g);
+      reopened.push(g);
+    }
+    return reopened;
+  }
+
   async get(id: string) {
     return this.store.get(id);
   }

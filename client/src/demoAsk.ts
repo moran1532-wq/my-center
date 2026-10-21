@@ -291,8 +291,13 @@ export const demoUploads = () => uploadsPersist.read();
 const demoKnowledge: KnowledgeStore = {
   async list(filter?: KnowledgeFilter) {
     const samples = (await import("../../server/data/knowledge.json")).default as StoredKnowledgeItem[];
-    return queryKnowledge([...(await uploadsPersist.read()), ...samples], filter);
+    const gone = await demoArchivedIds();
+    return queryKnowledge([...(await uploadsPersist.read()), ...samples].filter((i) => !gone.has(i.id)), filter);
   },
+  async archive(id: string) { await demoArchive(id); return true; },
+  async restore(id: string) { await demoRestore(id); return { reopenedGapIds: [] }; },
+  async noteReopened() {},
+  async listArchived() { return []; },
   async get(id: string, lang?: KLang) {
     const samples = (await import("../../server/data/knowledge.json")).default as StoredKnowledgeItem[];
     const item = [...(await uploadsPersist.read()), ...samples].find((i) => i.id === id);
@@ -383,5 +388,30 @@ const memory = new AnswerMemory(new LocalPersist<MemoryEntry>("preview-memory"))
 const langOf = (q: string): "he" | "en" => (/[\u0590-\u05FF]/.test(q) ? "he" : "en");
 async function knowledgeVersion() {
   const up = await uploadsPersist.read();
-  return `${up.length}:${up[up.length - 1]?.id ?? ""}:${largeMode() ? "L" : "S"}`;
+  const ar = await archivePersist.read();
+  return `${up.length}:${up[up.length - 1]?.id ?? ""}:${ar.length}:${ar[ar.length - 1]?.id ?? ""}:${largeMode() ? "L" : "S"}`;
+}
+
+// ---- removing documents in the preview ----
+const archivePersist = new LocalPersist<{ id: string; archivedAt: string; reopenedGapIds?: string[] }>("preview-archived");
+export async function demoArchivedIds() {
+  return new Set((await archivePersist.read()).map((a) => a.id));
+}
+export async function demoArchive(id: string) {
+  const list = await archivePersist.read();
+  if (!list.some((a) => a.id === id)) await archivePersist.write([...list, { id, archivedAt: new Date().toISOString() }]);
+  const reopened = await demoGaps().reopenClosedBy(id);
+  const after = await archivePersist.read();
+  const entry = after.find((a) => a.id === id);
+  if (entry && reopened.length) {
+    entry.reopenedGapIds = reopened.map((g) => g.id);
+    await archivePersist.write(after);
+  }
+  return { reopened: reopened.map((g) => ({ id: g.id })) };
+}
+export async function demoRestore(id: string) {
+  const list = await archivePersist.read();
+  const entry = list.find((a) => a.id === id);
+  await archivePersist.write(list.filter((a) => a.id !== id));
+  for (const gapId of entry?.reopenedGapIds ?? []) await demoGaps().close(gapId, id);
 }

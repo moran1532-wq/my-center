@@ -322,3 +322,8 @@ blockquote {
 .cost-card { display: flex; flex-direction: column; gap: 2px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
 .large-mode { display: flex; gap: 8px; align-items: flex-start; background: var(--sample-bg); color: var(--text); border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; }
 .memory-tag { font-size: .8rem; color: var(--ans); font-weight: 600; }
+.archived-banner { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--sample-bg); color: var(--sample-text); border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; }
+.doc-actions { margin: -6px 0 16px; display: flex; justify-content: flex-end; }
+.confirm-box { display: flex; flex-direction: column; gap: 8px; background: var(--danger-bg); color: var(--danger-text); border-radius: 10px; padding: 10px 14px; width: 100%; }
+.removed-toggle { margin-bottom: 10px; }
+.card-removed { opacity: .75; border-style: dashed; }

@@ -65,6 +65,28 @@ export function createApp(
     res.json(items.map(({ body, ...rest }) => ({ ...rest, excerpt: body.slice(0, 160) })));
   });
 
+  // ---- removing documents (knowledge owners) ----
+  app.get("/api/knowledge-archived", ownerOnly, async (req, res) => {
+    res.json(await store.listArchived(langOf(req.query.lang)));
+  });
+
+  app.post("/api/knowledge/:id/archive", ownerOnly, async (req, res) => {
+    if (!(await store.archive(req.params.id))) return res.status(404).json({ error: "not found" });
+    // gaps this document closed are open again - the knowledge that answered them is gone
+    const reopened = gaps ? await gaps.reopenClosedBy(req.params.id) : [];
+    await store.noteReopened(req.params.id, reopened.map((g) => g.id));
+    res.json({ ok: true, reopened: reopened.map((g) => ({ id: g.id, titleHe: g.titleHe, titleEn: g.titleEn })) });
+  });
+
+  app.post("/api/knowledge/:id/restore", ownerOnly, async (req, res) => {
+    const restored = await store.restore(req.params.id);
+    if (!restored) return res.status(404).json({ error: "not found" });
+    // the gaps it used to close are answered again
+    const reclosed = [];
+    for (const gapId of restored.reopenedGapIds) if (gaps && (await gaps.close(gapId, req.params.id))) reclosed.push(gapId);
+    res.json({ ok: true, reclosed });
+  });
+
   app.get("/api/knowledge/:id", async (req, res) => {
     const item = await store.get(req.params.id, langOf(req.query.lang));
     if (!item) return res.status(404).json({ error: "not found" });

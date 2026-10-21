@@ -26,6 +26,8 @@ export interface KnowledgeItem extends LocalizedText {
   updatedAt: string;
   isSample: boolean;
   sourceUrl?: string;
+  /** removed from the knowledge base by an owner - Claude no longer reads it, it can be restored */
+  archived?: boolean;
   lang: Lang;
 }
 
