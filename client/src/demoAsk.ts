@@ -19,6 +19,9 @@ interface Reply {
   quotes: { doc: number; quote: string }[];
 }
 
+const counted = new Set<string>();
+const pending = new Map<string, Promise<void>>();
+
 const conversations = new Map<string, { lang: "he" | "en"; docs: KnowledgeItem[]; turns: { role: "user" | "assistant"; content: string }[] }>();
 
 const RULES = `You are the knowledge assistant of a water-technology company's internal team. Answer ONLY from the numbered documents below.
@@ -89,9 +92,11 @@ export async function demoAsk(question: string, docs: KnowledgeItem[], conversat
   const answerText = segments.map((s) => s.text).join("");
   conv.turns.push({ role: "assistant", content: answerText || "-" });
   const turn = conv.turns.filter((t) => t.role === "user").length - 1;
-  demoGaps().consider({ question, answerText, lang: conv.lang, notHelpful: false })
-    .then((gap) => gap && counted.add(`${id}:${turn}`))
-    .catch((e) => console.error("preview gap check failed", e));
+  const key = `${id}:${turn}`;
+  pending.set(key, demoGaps().consider({ question, answerText, lang: conv.lang, notHelpful: false })
+    .then((gap) => { if (gap) counted.add(key); })
+    .catch((e) => console.error("preview gap check failed", e))
+    .finally(() => pending.delete(key)));
   return { conversationId: id, turn, status: "answered", segments, sources };
 }
 
@@ -152,9 +157,8 @@ export function demoGaps() {
   return gapService;
 }
 
-const counted = new Set<string>();
-
 export async function demoFeedback(conversationId: string, turn: number) {
+  await pending.get(`${conversationId}:${turn}`);
   if (counted.has(`${conversationId}:${turn}`)) return;
   const conv = conversations.get(conversationId);
   const users = conv?.turns.flatMap((t, i) => (t.role === "user" ? [i] : [])) ?? [];

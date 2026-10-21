@@ -140,6 +140,19 @@ describe("gap API", () => {
     expect((await request(app).get("/api/gaps")).body[0].count).toBe(1);
   });
 
+  it("didn't-help pressed while the automatic check is still running still counts once", async () => {
+    const { app } = setup(async (_c, existing) => {
+      await new Promise((r) => setTimeout(r, 50));
+      return verdict({ kind: "partial", matchesGapId: existing[0]?.id ?? null });
+    });
+    const asked = await request(app).post("/api/ask").send({ question: "לחץ מים נמוך?", lang: "he" });
+    await request(app).post("/api/feedback").send({ conversationId: asked.body.conversationId, turn: 0 });
+    const list = (await request(app).get("/api/gaps")).body;
+    expect(list).toHaveLength(1);
+    expect(list[0].count).toBe(1);
+    expect(list[0].examples.map((e: any) => e.reason)).toEqual(["partial"]);
+  });
+
   it("dismiss and restore", async () => {
     const { app, gaps } = setup(async () => verdict({}));
     const g = (await gaps.consider(q("כמה עולה?")))!;

@@ -11,6 +11,9 @@ export default function GapsPage() {
   const load = () => listGaps().then((g) => (setGaps(g), setError(false))).catch(() => setError(true));
   useEffect(() => {
     load();
+    // checks run in the background after each answer - keep the list fresh
+    const timer = setInterval(load, 5000);
+    return () => clearInterval(timer);
   }, []);
 
   async function toggle(id: string, dismiss: boolean) {

@@ -39,6 +39,8 @@ export function createApp(store: KnowledgeStore, answers: AnswerService | null, 
 
   /** answers already counted as a gap (by the automatic check or by feedback) */
   const feedbackGiven = new Set<string>();
+  /** automatic gap checks still running, so feedback can wait for them */
+  const pendingChecks = new Map<string, Promise<void>>();
 
   // Each question costs money, so it gets its own, tighter limit.
   const askLimit = rateLimit({ windowMs: 60_000, limit: 20, standardHeaders: true, legacyHeaders: false });
@@ -60,9 +62,11 @@ export function createApp(store: KnowledgeStore, answers: AnswerService | null, 
       if (gaps && result.status === "answered") {
         const answerText = result.segments.map((s) => s.text).join("");
         const key = `${result.conversationId}:${result.turn}`;
-        gaps.consider({ question: question.trim(), answerText, lang, notHelpful: false })
-          .then((gap) => gap && feedbackGiven.add(key)) // already a gap: "didn't help" must not count it twice
-          .catch((e) => console.error("gap check failed:", e instanceof Error ? e.message : e));
+        const check = gaps.consider({ question: question.trim(), answerText, lang, notHelpful: false })
+          .then((gap) => { if (gap) feedbackGiven.add(key); }) // already a gap: "didn't help" must not count it twice
+          .catch((e) => console.error("gap check failed:", e instanceof Error ? e.message : e))
+          .finally(() => pendingChecks.delete(key));
+        pendingChecks.set(key, check);
       }
     } catch (err) {
       if (err instanceof ConversationNotFoundError) return res.status(404).json({ error: "conversation_expired" });
@@ -84,6 +88,7 @@ export function createApp(store: KnowledgeStore, answers: AnswerService | null, 
       return res.status(400).json({ error: "invalid feedback" });
     }
     const key = `${conversationId}:${turn}`;
+    await pendingChecks.get(key);
     if (feedbackGiven.has(key)) return res.json({ ok: true });
     const t = await answers.turn(conversationId, turn);
     if (!t) return res.status(404).json({ error: "conversation_expired" });
