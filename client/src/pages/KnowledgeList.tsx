@@ -5,6 +5,7 @@ import { useLang } from "../i18n";
 import TypeBadge from "../TypeBadge";
 import UploadDialog from "../UploadDialog";
 import { useIsOwner } from "../role";
+import { largeMode, setLargeMode } from "../api";
 
 const FILTERS: (KnowledgeType | undefined)[] = [undefined, "procedure", "customer_answer", "document"];
 
@@ -16,6 +17,7 @@ export default function KnowledgeList() {
   const [error, setError] = useState(false);
   const [adding, setAdding] = useState(false);
   const isOwner = useIsOwner();
+  const [large, setLarge] = useState(largeMode());
   const [reload, setReload] = useState(0);
 
   useEffect(() => {
@@ -61,6 +63,12 @@ export default function KnowledgeList() {
         />
       </div>
 
+      {import.meta.env.VITE_DEMO === "1" && (
+        <label className="large-mode">
+          <input id="large-mode" type="checkbox" checked={large} onChange={(e) => { setLargeMode(e.target.checked); setLarge(e.target.checked); setReload((n) => n + 1); }} />
+          <span><strong>{t.largeMode}</strong> <span className="muted small">{t.largeModeHint}</span></span>
+        </label>
+      )}
       {error && <p className="state error">{t.error}</p>}
       {!error && items === null && <p className="state">{t.loading}</p>}
       {!error && items?.length === 0 && <p className="state">{t.noResults}</p>}

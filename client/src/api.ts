@@ -7,7 +7,9 @@ export type KnowledgeSummary = Omit<KnowledgeItem, "body"> & { excerpt: string }
 // Demo mode: a static preview with the sample data bundled in, no server needed.
 const DEMO = import.meta.env.VITE_DEMO === "1";
 const demoData = async (): Promise<StoredKnowledgeItem[]> =>
-  (await import("../../server/data/knowledge.json")).default as StoredKnowledgeItem[];
+  (largeMode()
+    ? (await import("../../server/data/knowledge-large.json")).default
+    : (await import("../../server/data/knowledge.json")).default) as StoredKnowledgeItem[];
 
 const summarize = ({ body, ...rest }: KnowledgeItem): KnowledgeSummary => ({ ...rest, excerpt: body.slice(0, 160) });
 
@@ -40,6 +42,8 @@ export interface AnswerSource { number: number; id: string; title: string; type:
 export interface AskResult {
   conversationId: string;
   turn: number;
+  /** preview only: how many documents Claude read */
+  docsRead?: { sent: number; total: number };
   status: "answered" | "declined";
   segments: AnswerSegment[];
   sources: AnswerSource[];
@@ -56,9 +60,11 @@ export class AskError extends Error {
 export async function ask(question: string, lang: Lang, conversationId?: string): Promise<AskResult> {
   if (DEMO) {
     const { demoAsk, DemoAskError } = await import("./demoAsk");
-    const docs = queryKnowledge(await demoAll(), { lang });
+    const all = await demoAll();
+    const docs = queryKnowledge(all, { lang });
+    const other = queryKnowledge(all, { lang: lang === "he" ? "en" : "he" });
     try {
-      return await demoAsk(question, docs, conversationId);
+      return await demoAsk(question, docs, other, conversationId);
     } catch (e) {
       throw new AskError(e instanceof DemoAskError ? e.code : "unknown");
     }
@@ -216,4 +222,32 @@ export async function getRole(): Promise<Role> {
   const res = await fetch("/api/me");
   if (!res.ok) throw new AskError((await res.json().catch(() => ({}))).error ?? "unknown");
   return (await res.json()).role === "owner" ? "owner" : "member";
+}
+
+export interface UsageInfo {
+  measured: boolean;
+  month?: { questions: number; usd: number; perQuestionUsd: number };
+}
+export async function getUsage(): Promise<UsageInfo> {
+  if (DEMO) return { measured: false };
+  const res = await fetch("/api/usage");
+  if (!res.ok) throw new Error(String(res.status));
+  return res.json();
+}
+
+/** Preview only: include 28 extra sample documents to try smart search. */
+export const LARGE_MODE_KEY = "preview-large-base";
+export function largeMode(): boolean {
+  try {
+    return DEMO && localStorage.getItem(LARGE_MODE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+export function setLargeMode(on: boolean) {
+  try {
+    localStorage.setItem(LARGE_MODE_KEY, on ? "1" : "0");
+  } catch {
+    /* ignore */
+  }
 }

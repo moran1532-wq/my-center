@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
+  getUsage, type UsageInfo,
   addRecipient, generateReport, listRecipients, listReports, removeRecipient, reportHtml,
   type Lang, type Recipient, type ReportSummary,
 } from "../api";
@@ -7,6 +8,8 @@ import { useLang } from "../i18n";
 import { useIsOwner } from "../role";
 
 const DEMO = import.meta.env.VITE_DEMO === "1";
+
+const money = (n: number) => `$${n < 1 ? n.toFixed(3) : n.toFixed(2)}`;
 
 export default function ReportsPage() {
   const { t, lang } = useLang();
@@ -17,6 +20,7 @@ export default function ReportsPage() {
   const [error, setError] = useState("");
   const [open, setOpen] = useState<ReportSummary | null>(null);
   const isOwner = useIsOwner();
+  const [usage, setUsage] = useState<UsageInfo | null>(null);
 
   const load = async () => {
     try {
@@ -24,6 +28,7 @@ export default function ReportsPage() {
       setReports(r.reports);
       setNextDue(r.nextDue);
       setOwners(isOwner ? await listRecipients() : []);
+      if (isOwner) setUsage(await getUsage().catch(() => null));
     } catch {
       setError(t.saveError);
     }
@@ -62,6 +67,19 @@ export default function ReportsPage() {
         {isOwner && <button className="primary" onClick={makeNow} disabled={busy}>{busy ? t.generating : t.generateNow}</button>}
       </div>
       {error && <p className="state error">{error}</p>}
+
+      {isOwner && usage && (
+        <div className="cost-card">
+          <span className="small muted">{t.costTitle}</span>
+          {!usage.measured ? (
+            <span className="small">{t.costPreview}</span>
+          ) : usage.month && usage.month.questions > 0 ? (
+            <strong>{t.costLine(usage.month.questions, money(usage.month.usd), money(usage.month.perQuestionUsd))}</strong>
+          ) : (
+            <span className="small">{t.costNone}</span>
+          )}
+        </div>
+      )}
 
       {open && <ReportViewer report={open} owners={owners} onClose={() => setOpen(null)} />}
 

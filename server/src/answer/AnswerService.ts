@@ -3,6 +3,7 @@ import type { KnowledgeItem, Lang } from "../types.js";
 import type { ConversationStore } from "./ConversationStore.js";
 import type { Retriever } from "./Retriever.js";
 import { SYSTEM_PROMPT } from "./prompt.js";
+import type { UsageMeter } from "../usage/UsageMeter.js";
 
 export const MODEL = "claude-opus-5-5";
 const MAX_SOURCES = 3;
@@ -13,8 +14,12 @@ export type CreateMessage = (
   params: Anthropic.Beta.MessageCreateParamsNonStreaming,
 ) => Promise<Anthropic.Beta.BetaMessage>;
 
-export function claudeCreateMessage(client: Anthropic): CreateMessage {
-  return (params) => client.beta.messages.stream(params).finalMessage();
+export function claudeCreateMessage(client: Anthropic, meter?: UsageMeter): CreateMessage {
+  return async (params) => {
+    const res = await client.beta.messages.stream(params).finalMessage();
+    await meter?.record("answer", res.model, res.usage).catch(() => undefined);
+    return res;
+  };
 }
 
 export interface AnswerSegment {

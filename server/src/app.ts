@@ -11,6 +11,7 @@ import type { RecipientStore, ReportData } from "./reports/types.js";
 import { buildReportHtml, reportSubject } from "./reports/reportHtml.js";
 import multer from "multer";
 import { ownerOnly } from "./auth.js";
+import { monthStartIso, type UsageMeter } from "./usage/UsageMeter.js";
 import type { RequestHandler } from "express";
 import { ExtractError, MAX_FILE_BYTES, extractFromFile, extractFromLink, extractFromPaste } from "./intake/extract.js";
 import { DraftNotFoundError, type IntakeService } from "./intake/IntakeService.js";
@@ -22,6 +23,7 @@ const MAX_QUESTION = 2000;
 export interface Reporting {
   service: ReportService;
   recipients: RecipientStore;
+  usage?: UsageMeter | null;
 }
 
 export interface Uploads {
@@ -242,6 +244,13 @@ export function createApp(
     if (!r) return res.status(404).json({ error: "not found" });
     res.set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; img-src data:");
     res.type("html").send(buildReportHtml(r, langOf(req.query.lang)));
+  });
+
+  // ---- what Claude cost (owners only) ----
+  app.get("/api/usage", ownerOnly, async (_req, res) => {
+    if (!reporting?.usage) return res.json({ measured: false });
+    const since = monthStartIso();
+    res.json({ measured: true, since, month: await reporting.usage.summary(since) });
   });
 
   // ---- knowledge owners who get the report ----

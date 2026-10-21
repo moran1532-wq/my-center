@@ -15,6 +15,7 @@ const T = {
     isNew: "חדש",
     howAsked: "איך שאלו:",
     reasons: { no_info: "אין מידע", partial: "תשובה חלקית", not_helpful: "לא עזר" },
+    cost: (usd: string, per: string) => `עלות Claude בתקופה: ${usd} (בממוצע ${per} לשאלה)`,
     closedHeading: (n: number) => (n === 1 ? "פער אחד נסגר מאז הדוח הקודם" : `${n} פערים נסגרו מאז הדוח הקודם`),
     footer: "כדי לסגור פער - מעלים מסמך שעונה עליו. בפעם הבאה שמישהו ישאל, תהיה תשובה.",
     subject: (n: number, d: string) => `דוח פערי ידע - ${n === 1 ? "פער פתוח אחד" : `${n} פערים פתוחים`} (${d})`,
@@ -32,6 +33,7 @@ const T = {
     isNew: "New",
     howAsked: "How people asked:",
     reasons: { no_info: "No info", partial: "Partial answer", not_helpful: "Didn't help" },
+    cost: (usd: string, per: string) => `Claude cost in this period: ${usd} (${per} per question on average)`,
     closedHeading: (n: number) => (n === 1 ? "1 gap closed since the last report" : `${n} gaps closed since the last report`),
     footer: "To close a gap, upload a document that answers it. Next time someone asks, there will be an answer.",
     subject: (n: number, d: string) => `Knowledge gap report - ${n === 1 ? "1 open gap" : `${n} open gaps`} (${d})`,
@@ -43,6 +45,8 @@ const esc = (s: string) =>
 
 const fmtDate = (iso: string, lang: Lang) =>
   new Date(iso).toLocaleDateString(lang === "he" ? "he-IL" : "en-GB", { timeZone: "Asia/Jerusalem" });
+
+const usd = (n: number) => `$${n < 1 ? n.toFixed(3) : n.toFixed(2)}`;
 
 export function reportSubject(r: ReportData, lang: Lang) {
   return T[lang].subject(r.gaps.length, fmtDate(r.createdAt, lang));
@@ -101,6 +105,7 @@ export function buildReportHtml(r: ReportData, lang: Lang): string {
   <tr><td><table role="presentation" width="100%" cellpadding="0" cellspacing="6"><tr>
     ${stat(r.stats.asked, t.asked, "#13222f")}${stat(r.stats.answered, t.answered, "#11806a")}${stat(r.stats.partial, t.partial, "#7a5300")}${stat(r.stats.noInfo, t.noInfo, "#a12a1b")}
   </tr></table></td></tr>
+  ${r.cost ? `<tr><td style="${font}text-align:${align};font-size:13px;color:#5b6b79;padding-top:8px;">${esc(t.cost(usd(r.cost.usd), usd(r.cost.perQuestionUsd)))}</td></tr>` : ""}
   <tr><td style="${font}text-align:${align};font-size:17px;font-weight:bold;color:#13222f;padding:20px 0 10px;">
     ${r.gaps.length ? esc(t.gapsHeading(r.gaps.length)) : esc(t.none)}</td></tr>
   <tr><td><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${gapRows}</table></td></tr>

@@ -1,0 +1,722 @@
+[
+  {
+    "id": "proc-install",
+    "title": "נוהל התקנת יחידה על קו המים הראשי",
+    "type": "procedure",
+    "topic": "התקנה",
+    "updatedAt": "2026-09-14",
+    "owner": "צוות שטח",
+    "isSample": true,
+    "body": "מטרה: התקנה תקינה של יחידת ניטור וסגירה על קו המים הראשי של המבנה, כך שהיחידה תתחיל לשדר נתונים ביום ההתקנה.\n\nלפני ההגעה לאתר:\n1. לוודא מול הלקוח את קוטר הצנרת הראשית (1\", 1.5\", 2\" או 3\") ולהביא יחידה ומתאמים בהתאם.\n2. לוודא שיש באתר שקע חשמל במרחק של עד 3 מטרים מנקודת ההתקנה, או לקחת ערכת סוללה.\n3. לתאם עם אחראי האתר הפסקת מים של כ-45 דקות.\n\nשלבי ההתקנה:\n1. לסגור את הברז הראשי ולפרוק לחץ דרך הברז הקרוב.\n2. לחתוך את הצנרת לפי מידת היחידה ולהתקין מתאמים. כיוון הזרימה מסומן בחץ על גוף היחידה - חובה להתקין בכיוון הנכון.\n3. להדק, לפתוח את הברז הראשי בהדרגה ולבדוק שאין טפטוף בחיבורים במשך 5 דקות.\n4. לחבר לחשמל ולוודא שהנורית הירוקה מהבהבת (חיפוש רשת) ואז דולקת קבוע (מחובר).\n5. לסרוק את הברקוד שעל היחידה באפליקציית הטכנאי ולשייך אותה לאתר הלקוח.\n6. לבצע בדיקת סגירה: לשלוח פקודת סגירה מהאפליקציה, לוודא שהזרימה נעצרת, ולפתוח מחדש.\n\nסיום: לצלם את היחידה המותקנת ולהעלות את התמונה לכרטיס האתר. ללא תמונה ההתקנה לא נחשבת סגורה.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Installing a Unit on the Main Water Line",
+        "topic": "Installation",
+        "owner": "Field team",
+        "body": "Purpose: Correct installation of a monitoring and shutoff unit on the building's main water line, so the unit starts transmitting data on installation day.\n\nBefore arriving on site:\n1. Confirm with the customer the main pipe diameter (1\", 1.5\", 2\" or 3\") and bring the matching unit and adapters.\n2. Make sure there is a power outlet within 3 meters of the installation point, or bring a battery kit.\n3. Coordinate a water outage of about 45 minutes with the site manager.\n\nInstallation steps:\n1. Close the main valve and release pressure through the nearest tap.\n2. Cut the pipe to the unit's length and install adapters. The flow direction is marked with an arrow on the unit body - it must be installed in the correct direction.\n3. Tighten, open the main valve gradually and check for drips at the connections for 5 minutes.\n4. Connect to power and make sure the green light blinks (searching for network) and then stays on (connected).\n5. Scan the barcode on the unit in the technician app and assign it to the customer's site.\n6. Run a shutoff test: send a shutoff command from the app, confirm the flow stops, and reopen.\n\nCompletion: Photograph the installed unit and upload the photo to the site card. Without a photo the installation is not considered closed."
+      }
+    }
+  },
+  {
+    "id": "proc-leak-alert",
+    "title": "נוהל טיפול בהתראת דליפה",
+    "type": "procedure",
+    "topic": "התראות",
+    "updatedAt": "2026-10-02",
+    "owner": "מרכז תמיכה",
+    "isSample": true,
+    "body": "מטרה: טיפול מהיר בהתראת דליפה כדי למנוע נזק למבנה.\n\nזמן תגובה נדרש: עד 15 דקות מרגע ההתראה בשעות הפעילות, עד 30 דקות מחוץ לשעות הפעילות.\n\nשלבי הטיפול:\n1. לפתוח את ההתראה במערכת ולבדוק את סוג הדליפה: זרימה רציפה (מים זורמים ברצף יותר מ-30 דקות), זרימה חריגה (צריכה גבוהה פי 3 מהממוצע לשעה זו), או טפטוף לילי.\n2. אם היחידה כבר סגרה את המים אוטומטית - לעבור ישר לשלב 4.\n3. אם המים עדיין פתוחים - להתקשר לאיש הקשר של האתר. אם אין מענה תוך 5 דקות ומדובר בזרימה רציפה - לשלוח פקודת סגירה מרחוק.\n4. לעדכן את איש הקשר: מה זוהה, האם המים סגורים, ומה עליו לבדוק במבנה.\n5. לרשום בכרטיס האירוע את כל השלבים ואת שעת הסגירה.\n6. אחרי שהלקוח מאשר שהדליפה טופלה - לפתוח את המים מחדש לפי נוהל פתיחה מחדש.\n\nחשוב: אסור לפתוח מחדש מים שנסגרו בגלל זרימה רציפה בלי אישור מפורש של איש הקשר באתר.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Handling a Leak Alert",
+        "topic": "Alerts",
+        "owner": "Support center",
+        "body": "Purpose: Fast handling of a leak alert to prevent damage to the building.\n\nRequired response time: up to 15 minutes from the alert during business hours, up to 30 minutes outside business hours.\n\nHandling steps:\n1. Open the alert in the system and check the leak type: continuous flow (water flowing continuously for more than 30 minutes), abnormal flow (consumption 3 times higher than the average for this hour), or night drip.\n2. If the unit has already shut off the water automatically - go straight to step 4.\n3. If the water is still open - call the site contact. If there is no answer within 5 minutes and it is continuous flow - send a remote shutoff command.\n4. Update the contact: what was detected, whether the water is closed, and what they should check in the building.\n5. Record all steps and the shutoff time in the event card.\n6. After the customer confirms the leak has been fixed - reopen the water according to the reopening procedure.\n\nImportant: Never reopen water that was shut off due to continuous flow without explicit approval from the site contact."
+      }
+    }
+  },
+  {
+    "id": "proc-shutoff",
+    "title": "נוהל סגירה אוטומטית ופתיחה מחדש",
+    "type": "procedure",
+    "topic": "סגירת מים",
+    "updatedAt": "2026-08-20",
+    "owner": "מרכז תמיכה",
+    "isSample": true,
+    "body": "מתי היחידה סוגרת אוטומטית:\n- זרימה רציפה מעל הסף שהוגדר לאתר (ברירת מחדל: 60 דקות ברציפות).\n- זרימה חריגה מעל פי 5 מהממוצע, בשעות שהאתר מוגדר בהן כסגור.\n- זיהוי דליפה מחיישן רצפה מחובר.\n\nפתיחה מחדש מרחוק:\n1. לוודא מול איש הקשר באתר שהדליפה אותרה וטופלה.\n2. במערכת: כרטיס האתר ← היחידה ← \"פתיחת מים\". לבחור סיבת פתיחה מהרשימה.\n3. לעקוב 10 דקות אחרי הפתיחה. אם הזרימה חוזרת לרמה החריגה - לסגור שוב ולהזמין טכנאי.\n\nפתיחה ידנית באתר: ליחידה יש כפתור עקיפה ידני מתחת למכסה. לחיצה של 5 שניות פותחת את המים גם בלי תקשורת. יש להנחות את הלקוח להשתמש בזה רק במקרה חירום ולעדכן את מרכז התמיכה.\n\nמצב תחזוקה: לפני עבודות אינסטלציה מתוכננות באתר אפשר להעביר את היחידה למצב תחזוקה לעד 8 שעות. במצב זה אין סגירה אוטומטית, אבל התראות ממשיכות להישלח.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Automatic Shutoff and Reopening",
+        "topic": "Water shutoff",
+        "owner": "Support center",
+        "body": "When the unit shuts off automatically:\n- Continuous flow above the threshold set for the site (default: 60 minutes continuously).\n- Abnormal flow above 5 times the average, during hours the site is defined as closed.\n- Leak detection by a connected floor sensor.\n\nRemote reopening:\n1. Confirm with the site contact that the leak was located and fixed.\n2. In the system: site card → unit → \"Open water\". Choose a reopening reason from the list.\n3. Monitor for 10 minutes after opening. If the flow returns to the abnormal level - shut off again and order a technician.\n\nManual opening on site: The unit has a manual override button under the cover. Pressing it for 5 seconds opens the water even without communication. Instruct the customer to use it only in an emergency and to update the support center.\n\nMaintenance mode: Before planned plumbing work on site, the unit can be put into maintenance mode for up to 8 hours. In this mode there is no automatic shutoff, but alerts continue to be sent."
+      }
+    }
+  },
+  {
+    "id": "proc-comm-loss",
+    "title": "נוהל טיפול בניתוק תקשורת של יחידה",
+    "type": "procedure",
+    "topic": "תקשורת",
+    "updatedAt": "2026-07-11",
+    "owner": "צוות שטח",
+    "isSample": true,
+    "body": "הגדרה: יחידה נחשבת מנותקת אם לא שידרה נתונים במשך 2 שעות.\n\nחשוב לדעת: גם כשהיחידה מנותקת, היא ממשיכה לזהות דליפות ולסגור מים אוטומטית. רק השידור למערכת נפסק.\n\nשלבי בדיקה מרחוק:\n1. לבדוק במערכת מתי היה השידור האחרון ומה היה מצב הסוללה.\n2. לבדוק אם יחידות אחרות באותו אזור מנותקות - אם כן, ייתכן שזו תקלה ברשת הסלולר.\n3. להתקשר לאיש הקשר באתר ולבקש לבדוק: האם הנורית דולקת? באיזה צבע? האם הייתה הפסקת חשמל?\n\nצבעי נורית:\n- ירוק קבוע - מחובר. אם המערכת מראה ניתוק, לפתוח תקלה לצוות הפיתוח.\n- ירוק מהבהב - מחפש רשת. להמתין 15 דקות.\n- כתום - קליטה חלשה. לשקול התקנת אנטנה חיצונית.\n- כבוי - אין חשמל. לבדוק שקע או להחליף סוללה.\n\nאם הניתוק נמשך יותר מ-24 שעות - לתאם ביקור טכנאי.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Handling Unit Communication Loss",
+        "topic": "Communication",
+        "owner": "Field team",
+        "body": "Definition: A unit is considered disconnected if it has not transmitted data for 2 hours.\n\nGood to know: Even when the unit is disconnected, it keeps detecting leaks and shutting off water automatically. Only the transmission to the system stops.\n\nRemote check steps:\n1. Check in the system when the last transmission was and what the battery status was.\n2. Check whether other units in the same area are disconnected - if so, it may be a cellular network issue.\n3. Call the site contact and ask them to check: Is the light on? What color? Was there a power outage?\n\nLight colors:\n- Solid green - connected. If the system shows a disconnection, open a ticket for the development team.\n- Blinking green - searching for network. Wait 15 minutes.\n- Orange - weak reception. Consider installing an external antenna.\n- Off - no power. Check the outlet or replace the battery.\n\nIf the disconnection lasts more than 24 hours - schedule a technician visit."
+      }
+    }
+  },
+  {
+    "id": "proc-maintenance",
+    "title": "נוהל תחזוקה שוטפת",
+    "type": "procedure",
+    "topic": "תחזוקה",
+    "updatedAt": "2026-06-30",
+    "owner": "צוות שטח",
+    "isSample": true,
+    "body": "תדירות: ביקור תחזוקה פעם ב-12 חודשים לכל יחידה, או פעם ב-6 חודשים באתרי בנייה פעילים.\n\nבביקור התחזוקה:\n1. בדיקה ויזואלית של חיבורים - אין טפטוף, אין חלודה.\n2. ניקוי מסננת הכניסה (מסננת סתומה גורמת לירידת לחץ אצל הלקוח).\n3. בדיקת סוללת הגיבוי - להחליף אם המתח מתחת ל-3.4 וולט.\n4. בדיקת סגירה ופתיחה מרחוק.\n5. עדכון גרסת תוכנה ליחידה אם יש עדכון ממתין.\n6. רישום הביקור בכרטיס האתר.\n\nבאתרי בנייה: לוודא שהיחידה מוגנת מפגיעה פיזית (מכסה מגן) ושלא הוזזה ממקומה במהלך העבודות.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Routine Maintenance",
+        "topic": "Maintenance",
+        "owner": "Field team",
+        "body": "Frequency: A maintenance visit once every 12 months per unit, or once every 6 months at active construction sites.\n\nDuring the maintenance visit:\n1. Visual check of connections - no drips, no rust.\n2. Clean the inlet strainer (a clogged strainer causes low pressure at the customer).\n3. Check the backup battery - replace it if the voltage is below 3.4 volts.\n4. Test remote shutoff and opening.\n5. Update the unit's software version if an update is pending.\n6. Record the visit in the site card.\n\nAt construction sites: make sure the unit is protected from physical damage (protective cover) and has not been moved during the works."
+      }
+    }
+  },
+  {
+    "id": "ans-why-shutoff",
+    "title": "למה המים נסגרו לי?",
+    "type": "customer_answer",
+    "topic": "סגירת מים",
+    "updatedAt": "2026-09-28",
+    "owner": "מרכז תמיכה",
+    "isSample": true,
+    "body": "תשובה מומלצת ללקוח:\n\nהמערכת סוגרת את המים אוטומטית כשהיא מזהה סימנים לדליפה, כדי למנוע נזק למבנה. הסיבות הנפוצות:\n- מים זרמו ברצף זמן ארוך מהרגיל (למשל ברז שנשאר פתוח, ניאגרה תקועה או צינור שהתפוצץ).\n- צריכה גבוהה מאוד בשעות שבהן המבנה בדרך כלל סגור.\n- חיישן רצפה זיהה מים.\n\nמה לעשות:\n1. לבדוק את המבנה - ברזים, ניאגרות, דוד וצנרת גלויה.\n2. אם מצאתם ותיקנתם את הבעיה - פנו אלינו או פתחו את המים מהאפליקציה (אם יש לכם הרשאה).\n3. אם לא מצאתם כלום - פנו אלינו ונבדוק יחד את נתוני הזרימה.\n\nבמקרה חירום אפשר לפתוח את המים ידנית בלחיצה של 5 שניות על כפתור העקיפה שמתחת למכסה היחידה. אחרי זה עדכנו אותנו.",
+    "translations": {
+      "en": {
+        "title": "Why was my water shut off?",
+        "topic": "Water shutoff",
+        "owner": "Support center",
+        "body": "Recommended answer to the customer:\n\nThe system shuts off the water automatically when it detects signs of a leak, to prevent damage to the building. Common reasons:\n- Water flowed continuously for longer than usual (for example a tap left open, a stuck toilet cistern or a burst pipe).\n- Very high consumption during hours when the building is usually closed.\n- A floor sensor detected water.\n\nWhat to do:\n1. Check the building - taps, toilets, water heater and exposed pipes.\n2. If you found and fixed the problem - contact us or open the water from the app (if you have permission).\n3. If you did not find anything - contact us and we will review the flow data together.\n\nIn an emergency you can open the water manually by pressing the override button under the unit cover for 5 seconds. Afterwards, please let us know."
+      }
+    }
+  },
+  {
+    "id": "ans-false-alert",
+    "title": "קיבלתי התראה אבל אין דליפה",
+    "type": "customer_answer",
+    "topic": "התראות",
+    "updatedAt": "2026-10-05",
+    "owner": "מרכז תמיכה",
+    "isSample": true,
+    "body": "תשובה מומלצת ללקוח:\n\nתודה שבדקתם. לפעמים צריכה תקינה אבל לא שגרתית נראית למערכת כמו דליפה. דוגמאות:\n- מילוי בריכה, מיכל או מערכת השקיה ארוכה.\n- ניקוי גדול או עבודות במבנה.\n- שינוי בשעות הפעילות של המבנה.\n\nמה אנחנו עושים:\n1. נבדוק את נתוני הזרימה ונאשר שזו הייתה צריכה תקינה.\n2. נסמן את ההתראה כ\"לא דליפה\" - זה עוזר למערכת ללמוד את דפוסי השימוש שלכם.\n3. אם מדובר בפעילות קבועה (למשל השקיה כל יום ב-6:00), נגדיר אותה במערכת כדי שלא תתקבל התראה בפעם הבאה.\n\nאם יש פעילות חד-פעמית מתוכננת, אפשר לעדכן אותנו מראש ונעביר את היחידה למצב תחזוקה.",
+    "translations": {
+      "en": {
+        "title": "I got an alert but there is no leak",
+        "topic": "Alerts",
+        "owner": "Support center",
+        "body": "Recommended answer to the customer:\n\nThank you for checking. Sometimes normal but unusual consumption looks like a leak to the system. Examples:\n- Filling a pool, a tank or a long irrigation cycle.\n- A big cleaning or works in the building.\n- A change in the building's operating hours.\n\nWhat we do:\n1. We review the flow data and confirm it was normal consumption.\n2. We mark the alert as \"not a leak\" - this helps the system learn your usage patterns.\n3. If it is a recurring activity (for example irrigation every day at 6:00), we define it in the system so you will not get an alert next time.\n\nIf a one-time activity is planned, you can let us know in advance and we will put the unit into maintenance mode."
+      }
+    }
+  },
+  {
+    "id": "ans-consumption",
+    "title": "איך רואים את צריכת המים באפליקציה?",
+    "type": "customer_answer",
+    "topic": "אפליקציה",
+    "updatedAt": "2026-08-12",
+    "owner": "מרכז תמיכה",
+    "isSample": true,
+    "body": "תשובה מומלצת ללקוח:\n\n1. פתחו את האפליקציה והתחברו.\n2. בחרו את האתר מהרשימה (אם יש לכם כמה אתרים).\n3. במסך הראשי מופיעה הצריכה של היום, לעומת ממוצע אותו יום בשבוע.\n4. לחיצה על \"היסטוריה\" מציגה גרף לפי שעה, יום, שבוע או חודש.\n5. אפשר להוריד דוח צריכה חודשי בקובץ Excel דרך \"דוחות\" ← \"צריכה חודשית\".\n\nטיפ: צריכה בשעות הלילה, כשהמבנה סגור, היא סימן מוקדם לדליפה קטנה. כדאי להסתכל על הגרף הלילי פעם בשבוע.",
+    "translations": {
+      "en": {
+        "title": "How do I see water consumption in the app?",
+        "topic": "App",
+        "owner": "Support center",
+        "body": "Recommended answer to the customer:\n\n1. Open the app and log in.\n2. Choose the site from the list (if you have several sites).\n3. The main screen shows today's consumption compared with the average for the same weekday.\n4. Tapping \"History\" shows a graph by hour, day, week or month.\n5. You can download a monthly consumption report as an Excel file via \"Reports\" → \"Monthly consumption\".\n\nTip: Consumption during night hours, when the building is closed, is an early sign of a small leak. It is worth looking at the night graph once a week."
+      }
+    }
+  },
+  {
+    "id": "ans-add-user",
+    "title": "איך מוסיפים משתמש לאפליקציה?",
+    "type": "customer_answer",
+    "topic": "אפליקציה",
+    "updatedAt": "2026-07-25",
+    "owner": "מרכז תמיכה",
+    "isSample": true,
+    "body": "תשובה מומלצת ללקוח:\n\nרק משתמש עם הרשאת \"מנהל אתר\" יכול להוסיף משתמשים.\n\n1. באפליקציה: תפריט ← \"ניהול משתמשים\" ← \"הוספת משתמש\".\n2. הזינו שם, טלפון ומייל.\n3. בחרו הרשאה:\n   - צופה - רואה נתונים והתראות.\n   - מפעיל - גם מקבל התראות ויכול לסגור ולפתוח מים.\n   - מנהל אתר - כל ההרשאות, כולל הוספת משתמשים.\n4. המשתמש החדש יקבל SMS עם קישור להתקנה.\n\nאם אין לכם משתמש עם הרשאת מנהל, פנו אלינו ונוסיף בשבילכם.",
+    "translations": {
+      "en": {
+        "title": "How do I add a user to the app?",
+        "topic": "App",
+        "owner": "Support center",
+        "body": "Recommended answer to the customer:\n\nOnly a user with \"Site manager\" permission can add users.\n\n1. In the app: menu → \"User management\" → \"Add user\".\n2. Enter name, phone and email.\n3. Choose a permission:\n   - Viewer - sees data and alerts.\n   - Operator - also receives alerts and can shut off and open water.\n   - Site manager - all permissions, including adding users.\n4. The new user will receive an SMS with an installation link.\n\nIf you do not have a user with manager permission, contact us and we will add one for you."
+      }
+    }
+  },
+  {
+    "id": "doc-spec",
+    "title": "מפרט המוצר - יחידת ניטור וסגירה",
+    "type": "document",
+    "topic": "מוצר",
+    "updatedAt": "2026-05-18",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "תיאור כללי: יחידה שמותקנת על קו המים הראשי, מודדת את הזרימה בזמן אמת, ומשתמשת בבינה מלאכותית כדי לזהות דליפות וצריכה חריגה. כשמזוהה בעיה, היחידה שולחת התראה ויכולה לסגור את המים אוטומטית.\n\nנתונים טכניים (לדוגמה):\n- קטרים נתמכים: 1\", 1.5\", 2\", 3\"\n- לחץ עבודה מקסימלי: 16 בר\n- טמפרטורת מים: 0-50 מעלות\n- תקשורת: סלולר (LTE-M), עם אפשרות לאנטנה חיצונית\n- חשמל: 230V, עם סוללת גיבוי ל-48 שעות\n- זמן סגירה: עד 15 שניות\n- דרגת אטימות: IP67\n\nיכולות:\n- למידה של דפוס הצריכה של כל אתר בשבועיים הראשונים\n- זיהוי זרימה רציפה, צריכה חריגה וטפטוף לילי\n- חיבור לחיישני רצפה אלחוטיים (עד 8 חיישנים ליחידה)\n- סגירה ופתיחה מרחוק מהאפליקציה או ממרכז התמיכה\n- המשך זיהוי וסגירה גם בלי תקשורת",
+    "translations": {
+      "en": {
+        "title": "Product Specification - Monitoring and Shutoff Unit",
+        "topic": "Product",
+        "owner": "Product team",
+        "body": "General description: A unit installed on the main water line that measures flow in real time and uses artificial intelligence to detect leaks and abnormal consumption. When a problem is detected, the unit sends an alert and can shut off the water automatically.\n\nTechnical data (sample):\n- Supported diameters: 1\", 1.5\", 2\", 3\"\n- Maximum working pressure: 16 bar\n- Water temperature: 0-50 degrees Celsius\n- Communication: cellular (LTE-M), with an option for an external antenna\n- Power: 230V, with a 48-hour backup battery\n- Shutoff time: up to 15 seconds\n- Ingress protection: IP67\n\nCapabilities:\n- Learns each site's consumption pattern in the first two weeks\n- Detects continuous flow, abnormal consumption and night drip\n- Connects to wireless floor sensors (up to 8 sensors per unit)\n- Remote shutoff and opening from the app or the support center\n- Keeps detecting and shutting off even without communication"
+      }
+    }
+  },
+  {
+    "id": "doc-onboarding",
+    "title": "מדריך קליטת לקוח חדש",
+    "type": "document",
+    "topic": "קליטת לקוח",
+    "updatedAt": "2026-09-01",
+    "owner": "צוות הצלחת לקוחות",
+    "isSample": true,
+    "body": "שלבי הקליטה:\n\nשבוע 0 - לפני ההתקנה:\n- פתיחת כרטיס אתר במערכת עם כתובת, אנשי קשר ושעות פעילות.\n- הגדרת אנשי קשר להתראות: לפחות שניים, אחד מהם זמין גם בלילה.\n- תיאום התקנה לפי נוהל התקנה.\n\nשבוע 1-2 - תקופת למידה:\n- המערכת לומדת את דפוס הצריכה. בתקופה הזו הסגירה האוטומטית פועלת רק על זרימה רציפה, לא על צריכה חריגה.\n- שיחת היכרות עם הלקוח: הסבר על האפליקציה, ההתראות וכפתור העקיפה.\n\nשבוע 3 - הפעלה מלאה:\n- הפעלת כל סוגי הזיהוי.\n- שליחת דוח ראשון ללקוח: צריכה, התראות, והמלצות.\n\nשבוע 6 - שיחת מעקב:\n- בדיקת התראות שגויות וכיול הספים אם צריך.\n- וידוא שכל המשתמשים הנדרשים נוספו לאפליקציה.",
+    "translations": {
+      "en": {
+        "title": "New Customer Onboarding Guide",
+        "topic": "Customer onboarding",
+        "owner": "Customer success team",
+        "body": "Onboarding stages:\n\nWeek 0 - before installation:\n- Open a site card in the system with address, contacts and operating hours.\n- Define alert contacts: at least two, one of them available at night as well.\n- Schedule installation according to the installation procedure.\n\nWeeks 1-2 - learning period:\n- The system learns the consumption pattern. During this period automatic shutoff works only on continuous flow, not on abnormal consumption.\n- Introduction call with the customer: explain the app, the alerts and the override button.\n\nWeek 3 - full activation:\n- Turn on all detection types.\n- Send the customer a first report: consumption, alerts and recommendations.\n\nWeek 6 - follow-up call:\n- Review false alerts and calibrate thresholds if needed.\n- Make sure all required users have been added to the app."
+      }
+    }
+  },
+  {
+    "id": "doc-alert-types",
+    "title": "סוגי התראות ומה כל אחת אומרת",
+    "type": "document",
+    "topic": "התראות",
+    "updatedAt": "2026-10-10",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "זרימה רציפה (חומרה: גבוהה)\nמים זורמים ללא הפסקה מעבר לזמן שהוגדר. הסיבה הנפוצה: צינור פרוץ או ברז פתוח. ברירת מחדל: סגירה אוטומטית אחרי 60 דקות.\n\nצריכה חריגה (חומרה: בינונית)\nצריכה גבוהה פי 3 ומעלה מהממוצע לשעה וליום זה. יכולה להיות דליפה, אבל גם פעילות לא שגרתית. סגירה אוטומטית רק בשעות שבהן האתר מוגדר כסגור.\n\nטפטוף לילי (חומרה: נמוכה)\nזרימה קטנה וקבועה בשעות הלילה. בדרך כלל ניאגרה דולפת או ברז מטפטף. אין סגירה - התראה בלבד, ודוח שבועי.\n\nחיישן רצפה (חומרה: גבוהה)\nחיישן אלחוטי זיהה מים על הרצפה. סגירה אוטומטית מיידית.\n\nניתוק תקשורת (חומרה: נמוכה)\nהיחידה לא שידרה 2 שעות. היחידה ממשיכה להגן על המבנה. ראו נוהל ניתוק תקשורת.\n\nסוללה חלשה (חומרה: נמוכה)\nסוללת הגיבוי מתחת לסף. יש לתאם החלפה בביקור הקרוב.",
+    "translations": {
+      "en": {
+        "title": "Alert Types and What Each One Means",
+        "topic": "Alerts",
+        "owner": "Product team",
+        "body": "Continuous flow (severity: high)\nWater flows without stopping beyond the defined time. Common cause: a burst pipe or an open tap. Default: automatic shutoff after 60 minutes.\n\nAbnormal consumption (severity: medium)\nConsumption 3 times or more above the average for this hour and day. It may be a leak, but also unusual activity. Automatic shutoff only during hours when the site is defined as closed.\n\nNight drip (severity: low)\nSmall, constant flow during night hours. Usually a leaking toilet or a dripping tap. No shutoff - alert only, plus a weekly report.\n\nFloor sensor (severity: high)\nA wireless sensor detected water on the floor. Immediate automatic shutoff.\n\nCommunication loss (severity: low)\nThe unit has not transmitted for 2 hours. The unit keeps protecting the building. See the communication loss procedure.\n\nLow battery (severity: low)\nThe backup battery is below the threshold. Schedule a replacement at the next visit."
+      }
+    }
+  },
+  {
+    "id": "proc-battery-replace",
+    "title": "נוהל החלפת סוללת גיבוי",
+    "type": "procedure",
+    "topic": "תחזוקה",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "1. לתאם ביקור עם הלקוח.\n2. לנתק את היחידה מהחשמל.\n3. לפתוח את מכסה הסוללה בעזרת מברג טורקס T10.\n4. להחליף לסוללת ליתיום 3.6V מהדגם המאושר בלבד.\n5. לחבר לחשמל ולוודא שהנורית ירוקה.\n6. לעדכן במערכת את תאריך ההחלפה.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Replacing the Backup Battery",
+        "topic": "Maintenance",
+        "owner": "Product team",
+        "body": "1. Schedule a visit with the customer.\n2. Disconnect the unit from power.\n3. Open the battery cover with a Torx T10 screwdriver.\n4. Replace with an approved 3.6V lithium battery only.\n5. Reconnect power and check that the light is green.\n6. Record the replacement date in the system."
+      }
+    }
+  },
+  {
+    "id": "proc-sensor-pairing",
+    "title": "נוהל צימוד חיישן רצפה",
+    "type": "procedure",
+    "topic": "חיישנים",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "1. במערכת: כרטיס האתר ← היחידה ← \"הוספת חיישן\".\n2. ללחוץ 3 שניות על הכפתור בחיישן עד שהנורית מהבהבת בכחול.\n3. החיישן מופיע ברשימה תוך 30 שניות.\n4. לתת לחיישן שם לפי המיקום, למשל \"חדר מכונות\".\n5. לבדוק: לגעת עם מטלית רטובה במגעים ולוודא שמתקבלת התראה.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Pairing a Floor Sensor",
+        "topic": "Sensors",
+        "owner": "Product team",
+        "body": "1. In the system: site card → unit → \"Add sensor\".\n2. Hold the sensor button for 3 seconds until the light blinks blue.\n3. The sensor appears in the list within 30 seconds.\n4. Name the sensor by location, for example \"Machine room\".\n5. Test: touch the contacts with a wet cloth and confirm an alert arrives."
+      }
+    }
+  },
+  {
+    "id": "proc-firmware",
+    "title": "נוהל עדכון גרסת תוכנה ליחידה",
+    "type": "procedure",
+    "topic": "תוכנה",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "עדכוני תוכנה נשלחים מרחוק בלילה, בין 02:00 ל-04:00. במהלך העדכון (כ-5 דקות) הסגירה האוטומטית ממשיכה לפעול. אם עדכון נכשל פעמיים, היחידה חוזרת לגרסה הקודמת ונפתחת תקלה לצוות הפיתוח. אין לבצע עדכון ידני בזמן אירוע דליפה פתוח.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Unit Firmware Update",
+        "topic": "Software",
+        "owner": "Product team",
+        "body": "Firmware updates are sent remotely at night, between 02:00 and 04:00. During the update (about 5 minutes) automatic shutoff keeps working. If an update fails twice, the unit rolls back to the previous version and a ticket opens for the development team. Do not update manually while a leak event is open."
+      }
+    }
+  },
+  {
+    "id": "proc-construction-site",
+    "title": "נוהל התקנה באתר בנייה",
+    "type": "procedure",
+    "topic": "אתרי בנייה",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "באתר בנייה מתקינים את היחידה על הקו הזמני של הקבלן. חובה מכסה מגן מתכת. מגדירים שעות עבודה (בדרך כלל 07:00-17:00) כדי שצריכה בשעות האלה לא תיחשב חריגה. בכל שלב בנייה חדש בודקים שהיחידה לא הוזזה. בסיום הפרויקט מעבירים את היחידה לקו הקבוע של הבניין.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Installing at a Construction Site",
+        "topic": "Construction sites",
+        "owner": "Product team",
+        "body": "At a construction site the unit is installed on the contractor's temporary line. A metal protective cover is required. Set working hours (usually 07:00-17:00) so consumption during them is not treated as abnormal. At each new construction stage check the unit was not moved. When the project ends, move the unit to the building's permanent line."
+      }
+    }
+  },
+  {
+    "id": "proc-escalation",
+    "title": "נוהל הסלמת תקלה",
+    "type": "procedure",
+    "topic": "תמיכה",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "רמה 1: מרכז התמיכה - עד 30 דקות.\nרמה 2: טכנאי תורן - כשנדרש ביקור או כשהתקלה לא נפתרה תוך שעה.\nרמה 3: צוות פיתוח - תקלה בתוכנה או ביותר מ-5 יחידות באותו אזור.\nבכל הסלמה מעדכנים את הלקוח בטלפון ובמייל.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Escalating an Issue",
+        "topic": "Support",
+        "owner": "Product team",
+        "body": "Level 1: support center - up to 30 minutes.\nLevel 2: on-call technician - when a visit is needed or the issue is not solved within an hour.\nLevel 3: development team - a software fault or more than 5 units in the same area.\nOn every escalation, update the customer by phone and email."
+      }
+    }
+  },
+  {
+    "id": "proc-uninstall",
+    "title": "נוהל פירוק יחידה",
+    "type": "procedure",
+    "topic": "התקנה",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "1. לתאם עם הלקוח הפסקת מים.\n2. במערכת: להעביר את היחידה לסטטוס \"בפירוק\" כדי שלא יישלחו התראות.\n3. לסגור ברז ראשי, לפרק, ולהתקין צינור מעבר.\n4. לבדוק שאין טפטוף.\n5. להחזיר את היחידה למחסן עם טופס החזרה.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Removing a Unit",
+        "topic": "Installation",
+        "owner": "Product team",
+        "body": "1. Schedule a water outage with the customer.\n2. In the system: set the unit to \"Removal\" status so no alerts are sent.\n3. Close the main valve, remove the unit and fit a bypass pipe.\n4. Check for drips.\n5. Return the unit to the warehouse with a return form."
+      }
+    }
+  },
+  {
+    "id": "proc-night-mode",
+    "title": "נוהל הגדרת שעות סגירה של אתר",
+    "type": "procedure",
+    "topic": "הגדרות",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "שעות הסגירה קובעות מתי צריכה חריגה מובילה לסגירה אוטומטית. במערכת: כרטיס האתר ← \"שעות פעילות\". אפשר להגדיר שעות שונות לכל יום, וימי חג. ברירת המחדל: סגור 20:00-06:00 ובשבת.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Setting Site Closed Hours",
+        "topic": "Settings",
+        "owner": "Product team",
+        "body": "Closed hours decide when abnormal consumption triggers automatic shutoff. In the system: site card → \"Operating hours\". Different hours per day and holidays can be set. Default: closed 20:00-06:00 and on Saturday."
+      }
+    }
+  },
+  {
+    "id": "proc-false-alarm-tuning",
+    "title": "נוהל כיול ספי התראות",
+    "type": "procedure",
+    "topic": "התראות",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "אם לאתר יש יותר משלוש התראות שגויות בשבוע: 1. לבדוק את דפוס הצריכה ב-30 הימים האחרונים. 2. להעלות את סף הצריכה החריגה מפי 3 לפי 4. 3. להאריך את זמן הזרימה הרציפה ב-15 דקות. 4. לתעד את השינוי ולעקוב שבוע.",
+    "translations": {
+      "en": {
+        "title": "Procedure: Tuning Alert Thresholds",
+        "topic": "Alerts",
+        "owner": "Product team",
+        "body": "If a site has more than three false alerts a week: 1. Review the consumption pattern of the last 30 days. 2. Raise the abnormal consumption threshold from 3x to 4x. 3. Extend the continuous-flow time by 15 minutes. 4. Record the change and monitor for a week."
+      }
+    }
+  },
+  {
+    "id": "ans-water-pressure",
+    "title": "האם היחידה מורידה את לחץ המים?",
+    "type": "customer_answer",
+    "topic": "תפעול",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "תשובה מומלצת: לא באופן מורגש. היחידה מתוכננת לירידת לחץ של עד 0.3 בר. אם מרגישים ירידה גדולה יותר, ייתכן שהמסננת בכניסה סתומה - נתאם ביקור לניקוי.",
+    "translations": {
+      "en": {
+        "title": "Does the unit reduce water pressure?",
+        "topic": "Operation",
+        "owner": "Product team",
+        "body": "Recommended answer: not noticeably. The unit is designed for a pressure drop of up to 0.3 bar. If you notice a bigger drop, the inlet strainer may be clogged - we will schedule a cleaning visit."
+      }
+    }
+  },
+  {
+    "id": "ans-power-outage",
+    "title": "מה קורה בהפסקת חשמל?",
+    "type": "customer_answer",
+    "topic": "תפעול",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "תשובה מומלצת: היחידה עוברת לסוללת גיבוי שמחזיקה עד 48 שעות, וממשיכה לזהות דליפות ולסגור מים. אם ההפסקה ארוכה יותר, המים נשארים במצב האחרון (פתוחים או סגורים).",
+    "translations": {
+      "en": {
+        "title": "What happens in a power outage?",
+        "topic": "Operation",
+        "owner": "Product team",
+        "body": "Recommended answer: the unit switches to a backup battery that lasts up to 48 hours and keeps detecting leaks and shutting off water. If the outage is longer, the water stays in its last state (open or closed)."
+      }
+    }
+  },
+  {
+    "id": "ans-privacy",
+    "title": "איזה מידע נאסף עליי?",
+    "type": "customer_answer",
+    "topic": "פרטיות",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "תשובה מומלצת: המערכת אוספת נתוני זרימת מים בלבד - כמות וזמן. אין מצלמות ואין מיקרופון. הנתונים נשמרים בשרתים מאובטחים ומשמשים רק לזיהוי דליפות ולדוחות הצריכה שלכם.",
+    "translations": {
+      "en": {
+        "title": "What data is collected about me?",
+        "topic": "Privacy",
+        "owner": "Product team",
+        "body": "Recommended answer: the system collects water flow data only - amount and time. There are no cameras and no microphone. The data is kept on secure servers and used only for leak detection and your consumption reports."
+      }
+    }
+  },
+  {
+    "id": "ans-notifications",
+    "title": "איך משנים את ההתראות שאני מקבל?",
+    "type": "customer_answer",
+    "topic": "אפליקציה",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "תשובה מומלצת: באפליקציה: תפריט ← \"הגדרות התראות\". אפשר לבחור לכל סוג התראה אם לקבל אותה ב-SMS, בהודעה באפליקציה או במייל, ולהגדיר שעות שקטות להתראות בחומרה נמוכה.",
+    "translations": {
+      "en": {
+        "title": "How do I change the alerts I get?",
+        "topic": "App",
+        "owner": "Product team",
+        "body": "Recommended answer: in the app: menu → \"Alert settings\". For each alert type you can choose SMS, app notification or email, and set quiet hours for low-severity alerts."
+      }
+    }
+  },
+  {
+    "id": "ans-multiple-sites",
+    "title": "אפשר לנהל כמה מבנים מחשבון אחד?",
+    "type": "customer_answer",
+    "topic": "אפליקציה",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "תשובה מומלצת: כן. כל מבנה מופיע כאתר נפרד באפליקציה, ואפשר לעבור ביניהם מהרשימה במסך הראשי. מנהל אתר יכול לקבל הרשאות לכל האתרים או רק לחלקם.",
+    "translations": {
+      "en": {
+        "title": "Can I manage several buildings from one account?",
+        "topic": "App",
+        "owner": "Product team",
+        "body": "Recommended answer: yes. Each building appears as a separate site in the app, and you can switch between them from the list on the main screen. A site manager can get permissions for all sites or only some."
+      }
+    }
+  },
+  {
+    "id": "ans-billing",
+    "title": "איך עובד החיוב החודשי?",
+    "type": "customer_answer",
+    "topic": "חיוב",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "תשובה מומלצת: החיוב הוא מנוי חודשי לכל יחידה, והוא כולל ניטור, התראות, תמיכה וביקור תחזוקה שנתי. החשבונית נשלחת במייל בתחילת כל חודש. לשאלות על חשבונית ספציפית - מחלקת הכספים.",
+    "translations": {
+      "en": {
+        "title": "How does monthly billing work?",
+        "topic": "Billing",
+        "owner": "Product team",
+        "body": "Recommended answer: billing is a monthly subscription per unit, including monitoring, alerts, support and an annual maintenance visit. The invoice is emailed at the start of each month. For a specific invoice - the finance department."
+      }
+    }
+  },
+  {
+    "id": "ans-move-unit",
+    "title": "אפשר להעביר את היחידה למקום אחר?",
+    "type": "customer_answer",
+    "topic": "התקנה",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "תשובה מומלצת: כן, אבל רק טכנאי שלנו מעביר יחידה, כדי לשמור על האטימות והאחריות. העברה בתוך אותו אתר כלולה במנוי פעם בשנה. פנו אלינו ונתאם.",
+    "translations": {
+      "en": {
+        "title": "Can the unit be moved to another place?",
+        "topic": "Installation",
+        "owner": "Product team",
+        "body": "Recommended answer: yes, but only our technician moves a unit, to keep it sealed and under warranty. Moving within the same site is included in the subscription once a year. Contact us to schedule."
+      }
+    }
+  },
+  {
+    "id": "ans-hot-water",
+    "title": "היחידה מתאימה גם למים חמים?",
+    "type": "customer_answer",
+    "topic": "מוצר",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "תשובה מומלצת: היחידה מיועדת לקו המים הראשי (קרים), בטמפרטורה עד 50 מעלות. לקו מים חמים מעל 50 מעלות יש להתייעץ עם צוות המוצר לפני התקנה.",
+    "translations": {
+      "en": {
+        "title": "Does the unit work with hot water?",
+        "topic": "Product",
+        "owner": "Product team",
+        "body": "Recommended answer: the unit is meant for the main (cold) water line, up to 50 degrees Celsius. For a hot water line above 50 degrees, consult the product team before installing."
+      }
+    }
+  },
+  {
+    "id": "ans-reports-email",
+    "title": "איך מקבלים דוח צריכה במייל?",
+    "type": "customer_answer",
+    "topic": "דוחות",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "תשובה מומלצת: באפליקציה: \"דוחות\" ← \"דוח חודשי במייל\" ← להפעיל. הדוח נשלח ב-1 לכל חודש לכל משתמש עם הרשאת מנהל אתר.",
+    "translations": {
+      "en": {
+        "title": "How do I get a consumption report by email?",
+        "topic": "Reports",
+        "owner": "Product team",
+        "body": "Recommended answer: in the app: \"Reports\" → \"Monthly email report\" → turn on. The report is sent on the 1st of each month to every user with site manager permission."
+      }
+    }
+  },
+  {
+    "id": "ans-cancel",
+    "title": "איך מבטלים את השירות?",
+    "type": "customer_answer",
+    "topic": "חיוב",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "תשובה מומלצת: הביטול נעשה בהודעה בכתב 30 יום מראש. נתאם פירוק של היחידה ללא עלות. אם המנוי בתקופת התחייבות, ייתכן חיוב יחסי לפי ההסכם.",
+    "translations": {
+      "en": {
+        "title": "How do I cancel the service?",
+        "topic": "Billing",
+        "owner": "Product team",
+        "body": "Recommended answer: cancel with written notice 30 days in advance. We will schedule removal of the unit at no cost. If the subscription is within a commitment period, a prorated charge may apply under the agreement."
+      }
+    }
+  },
+  {
+    "id": "doc-sla",
+    "title": "אמנת שירות (SLA)",
+    "type": "document",
+    "topic": "שירות",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "זמינות מערכת: 99.5% בחודש.\nמענה לתקלה דחופה (דליפה פעילה): עד 15 דקות.\nמענה לתקלה רגילה: עד 4 שעות בימי עבודה.\nביקור טכנאי: עד 2 ימי עבודה, או באותו יום לתקלה דחופה.\nפיצוי על חריגה: זיכוי של 10% מהמנוי החודשי.",
+    "translations": {
+      "en": {
+        "title": "Service Level Agreement (SLA)",
+        "topic": "Service",
+        "owner": "Product team",
+        "body": "System availability: 99.5% per month.\nUrgent issue response (active leak): within 15 minutes.\nRegular issue response: within 4 business hours.\nTechnician visit: within 2 business days, or same day for an urgent issue.\nCompensation for a breach: 10% credit of the monthly subscription."
+      }
+    }
+  },
+  {
+    "id": "doc-sensor-spec",
+    "title": "מפרט חיישן רצפה אלחוטי",
+    "type": "document",
+    "topic": "חיישנים",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "טווח: עד 30 מטר בשטח פתוח.\nסוללה: CR2032, מחזיקה כשנתיים.\nאטימות: IP67.\nזיהוי: מגעים שמזהים 1 מ\"מ מים.\nעד 8 חיישנים ליחידה.",
+    "translations": {
+      "en": {
+        "title": "Wireless Floor Sensor Specification",
+        "topic": "Sensors",
+        "owner": "Product team",
+        "body": "Range: up to 30 meters in open space.\nBattery: CR2032, lasts about two years.\nIngress protection: IP67.\nDetection: contacts that detect 1 mm of water.\nUp to 8 sensors per unit."
+      }
+    }
+  },
+  {
+    "id": "doc-app-guide",
+    "title": "מדריך אפליקציה למשתמש חדש",
+    "type": "document",
+    "topic": "אפליקציה",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "מסך ראשי: צריכה היום, מצב המים (פתוח/סגור) והתראות פתוחות.\nהיסטוריה: גרפים לפי שעה, יום, שבוע וחודש.\nהתראות: רשימת כל ההתראות עם סטטוס.\nהגדרות: משתמשים, שעות פעילות, התראות.\nכפתור סגירה/פתיחה מרחוק זמין רק למפעיל ומנהל אתר.",
+    "translations": {
+      "en": {
+        "title": "App Guide for New Users",
+        "topic": "App",
+        "owner": "Product team",
+        "body": "Main screen: today's consumption, water state (open/closed) and open alerts.\nHistory: graphs by hour, day, week and month.\nAlerts: list of all alerts with status.\nSettings: users, operating hours, alerts.\nThe remote shutoff/open button is available only to operators and site managers."
+      }
+    }
+  },
+  {
+    "id": "doc-safety",
+    "title": "הנחיות בטיחות לטכנאים",
+    "type": "document",
+    "topic": "בטיחות",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "לפני עבודה: לוודא שהברז הראשי סגור ושאין לחץ בקו.\nעבודה ליד חשמל: לנתק את השקע לפני פתיחת היחידה.\nבמרתפים: לעבוד בזוגות ועם תאורה ניידת.\nבאתרי בנייה: קסדה, נעלי בטיחות ואפוד זוהר חובה.",
+    "translations": {
+      "en": {
+        "title": "Safety Guidelines for Technicians",
+        "topic": "Safety",
+        "owner": "Product team",
+        "body": "Before work: make sure the main valve is closed and there is no pressure in the line.\nWorking near electricity: unplug before opening the unit.\nIn basements: work in pairs and with portable lighting.\nAt construction sites: helmet, safety shoes and a high-visibility vest are required."
+      }
+    }
+  },
+  {
+    "id": "doc-glossary",
+    "title": "מילון מונחים",
+    "type": "document",
+    "topic": "מוצר",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "זרימה רציפה - מים שזורמים בלי הפסקה מעבר לזמן מוגדר.\nצריכה חריגה - צריכה גבוהה בהרבה מהממוצע לשעה וליום.\nכרטיס אתר - כל המידע על מבנה אחד במערכת.\nעקיפה ידנית - פתיחת מים בכפתור ביחידה, בלי תקשורת.\nמצב תחזוקה - השבתה זמנית של סגירה אוטומטית.",
+    "translations": {
+      "en": {
+        "title": "Glossary",
+        "topic": "Product",
+        "owner": "Product team",
+        "body": "Continuous flow - water flowing without a pause beyond a set time.\nAbnormal consumption - much higher than the average for the hour and day.\nSite card - all information about one building in the system.\nManual override - opening water with the unit button, without communication.\nMaintenance mode - temporarily turning off automatic shutoff."
+      }
+    }
+  },
+  {
+    "id": "doc-roles",
+    "title": "הרשאות משתמשים במערכת",
+    "type": "document",
+    "topic": "הרשאות",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "צופה: רואה נתונים והתראות.\nמפעיל: גם סוגר ופותח מים מרחוק.\nמנהל אתר: גם מוסיף משתמשים ומשנה הגדרות אתר.\nמנהל ארגון: כל האתרים של הלקוח, כולל חיוב.",
+    "translations": {
+      "en": {
+        "title": "User Permissions in the System",
+        "topic": "Permissions",
+        "owner": "Product team",
+        "body": "Viewer: sees data and alerts.\nOperator: also shuts off and opens water remotely.\nSite manager: also adds users and changes site settings.\nOrganization admin: all of the customer's sites, including billing."
+      }
+    }
+  },
+  {
+    "id": "doc-installation-checklist",
+    "title": "רשימת בדיקה לסיום התקנה",
+    "type": "document",
+    "topic": "התקנה",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "☐ אין טפטוף בחיבורים 5 דקות.\n☐ נורית ירוקה קבועה.\n☐ היחידה משויכת לאתר הנכון.\n☐ בדיקת סגירה ופתיחה עברה.\n☐ צולמה תמונה והועלתה.\n☐ הלקוח קיבל הסבר על כפתור העקיפה.",
+    "translations": {
+      "en": {
+        "title": "Installation Completion Checklist",
+        "topic": "Installation",
+        "owner": "Product team",
+        "body": "☐ No drips at connections for 5 minutes.\n☐ Solid green light.\n☐ Unit assigned to the right site.\n☐ Shutoff and reopen test passed.\n☐ Photo taken and uploaded.\n☐ Customer was shown the override button."
+      }
+    }
+  },
+  {
+    "id": "doc-data-retention",
+    "title": "מדיניות שמירת נתונים",
+    "type": "document",
+    "topic": "פרטיות",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "נתוני זרימה גולמיים נשמרים 24 חודשים. סיכומים חודשיים נשמרים 7 שנים. בסיום התקשרות, הנתונים נמחקים תוך 90 יום לפי בקשת הלקוח. גישה לנתונים - רק לעובדים בתפקידי תמיכה ומוצר.",
+    "translations": {
+      "en": {
+        "title": "Data Retention Policy",
+        "topic": "Privacy",
+        "owner": "Product team",
+        "body": "Raw flow data is kept for 24 months. Monthly summaries are kept for 7 years. When a contract ends, data is deleted within 90 days at the customer's request. Data access - only for employees in support and product roles."
+      }
+    }
+  },
+  {
+    "id": "doc-leak-stats",
+    "title": "סטטיסטיקת דליפות נפוצות",
+    "type": "document",
+    "topic": "מוצר",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "מניסיון השטח (נתונים לדוגמה): 41% מהדליפות - ניאגרות. 23% - צנרת במרתף. 17% - דודים. 12% - מערכות השקיה. 7% - אחר. רוב הדליפות הגדולות מתרחשות בסופי שבוע, כשהמבנה סגור.",
+    "translations": {
+      "en": {
+        "title": "Common Leak Statistics",
+        "topic": "Product",
+        "owner": "Product team",
+        "body": "From field experience (sample data): 41% of leaks - toilet cisterns. 23% - basement pipes. 17% - water heaters. 12% - irrigation systems. 7% - other. Most large leaks happen on weekends, when the building is closed."
+      }
+    }
+  },
+  {
+    "id": "doc-onboarding-employee",
+    "title": "הדרכה לעובד חדש במרכז התמיכה",
+    "type": "document",
+    "topic": "הדרכה",
+    "updatedAt": "2026-09-15",
+    "owner": "צוות מוצר",
+    "isSample": true,
+    "body": "שבוע 1: היכרות עם המוצר וצפייה בהתקנה. שבוע 2: עבודה בצמוד לנציג ותיק. שבוע 3: טיפול עצמאי בהתראות בחומרה נמוכה. שבוע 4: מבחן הסמכה על נוהל טיפול בהתראת דליפה ונוהל הסלמה.",
+    "translations": {
+      "en": {
+        "title": "Training for a New Support Center Employee",
+        "topic": "Training",
+        "owner": "Product team",
+        "body": "Week 1: getting to know the product and watching an installation. Week 2: working alongside a senior agent. Week 3: handling low-severity alerts independently. Week 4: certification test on the leak alert and escalation procedures."
+      }
+    }
+  }
+]

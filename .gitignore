@@ -9,3 +9,4 @@ server/data/recipients.json
 server/data/reports.json
 server/data/*.tmp
 server/data/uploaded.json
+server/data/usage.json

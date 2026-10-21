@@ -13,6 +13,7 @@ import { buildIntakePrompt, buildTranslatePrompt } from "../../server/src/intake
 import type { IntakeAnalysis } from "../../server/src/intake/types";
 import type { KnowledgeFilter, Lang as KLang, StoredKnowledgeItem } from "../../server/src/types";
 import { localize, queryKnowledge } from "../../server/src/knowledgeQuery";
+import { pickRelevant } from "../../server/src/answer/search";
 import type { KnowledgeStore } from "../../server/src/store/KnowledgeStore";
 import type { UploadCommit, UploadPreview, UploadSource } from "./api";
 
@@ -33,7 +34,7 @@ interface Reply {
 const counted = new Set<string>();
 const pending = new Map<string, Promise<void>>();
 
-const conversations = new Map<string, { lang: "he" | "en"; docs: KnowledgeItem[]; turns: { role: "user" | "assistant"; content: string }[] }>();
+const conversations = new Map<string, { total: number; lang: "he" | "en"; docs: KnowledgeItem[]; turns: { role: "user" | "assistant"; content: string }[] }>();
 
 const RULES = `You are the knowledge assistant of a water-technology company's internal team. Answer ONLY from the numbered documents inside <documents>. The team member's question comes after the documents, inside <question> tags - answer that question.
 - Never use outside knowledge or guess numbers, steps or policies.
@@ -55,7 +56,7 @@ export class DemoAskError extends Error {
   }
 }
 
-export async function demoAsk(question: string, docs: KnowledgeItem[], conversationId?: string): Promise<AskResult> {
+export async function demoAsk(question: string, allDocs: KnowledgeItem[], otherLang: KnowledgeItem[], conversationId?: string): Promise<AskResult> {
   if (!window.claude) throw new DemoAskError("demo:no_runtime");
   const sample = await window.claude.use("sample");
   if (!sample) throw new DemoAskError("demo:unavailable");
@@ -64,7 +65,8 @@ export async function demoAsk(question: string, docs: KnowledgeItem[], conversat
   if (conversationId && !conv) throw new DemoAskError("conversation_expired");
   const id = conversationId ?? crypto.randomUUID();
   if (!conv) {
-    conv = { lang: /[\u0590-\u05FF]/.test(question) ? "he" : "en", docs, turns: [] };
+    const docs = pickRelevant(question, allDocs, otherLang);
+    conv = { total: allDocs.length, lang: /[\u0590-\u05FF]/.test(question) ? "he" : "en", docs, turns: [] };
     conversations.set(id, conv);
   }
   const library = conv.docs
@@ -111,7 +113,7 @@ export async function demoAsk(question: string, docs: KnowledgeItem[], conversat
     .then((gap) => { if (gap) counted.add(key); })
     .catch((e) => console.error("preview gap check failed", e))
     .finally(() => pending.delete(key)));
-  return { conversationId: id, turn, status: "answered", segments, sources };
+  return { conversationId: id, turn, status: "answered", segments, sources, docsRead: { sent: conv.docs.length, total: conv.total } };
 }
 
 // ---- gaps in the preview: kept in this browser only ----

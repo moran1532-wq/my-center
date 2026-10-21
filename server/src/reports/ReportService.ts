@@ -2,6 +2,7 @@ import type { GapService } from "../gaps/GapService.js";
 import type { Mailer, RecipientStore, ReportData, ReportStore, StatsStore } from "./types.js";
 import { buildReportHtml, reportSubject } from "./reportHtml.js";
 import { nextReportDue, REPORT_EVERY_DAYS } from "./schedule.js";
+import type { UsageMeter } from "../usage/UsageMeter.js";
 
 export interface ReportDeps {
   gaps: GapService;
@@ -11,6 +12,7 @@ export interface ReportDeps {
   mailer: Mailer | null;
   newId: () => string;
   now?: () => Date;
+  usage?: UsageMeter | null;
 }
 
 /** "moran@example.com" -> "m***@example.com", so logs never hold a full address. */
@@ -22,7 +24,7 @@ export class ReportService {
   private running: Promise<ReportData> | null = null;
 
   constructor(deps: ReportDeps) {
-    this.d = { now: () => new Date(), ...deps };
+    this.d = { now: () => new Date(), usage: null, ...deps };
   }
 
   /** Only one report is built at a time (a click and the schedule can't double up). */
@@ -56,6 +58,7 @@ export class ReportService {
       },
       gaps,
       closed,
+      ...(this.d.usage ? { cost: await this.d.usage.summary(periodStart).then((u) => ({ usd: u.usd, questions: u.questions, perQuestionUsd: u.perQuestionUsd })) } : {}),
       delivery: { emailed: [], failed: [], note: "sent" },
     };
 
