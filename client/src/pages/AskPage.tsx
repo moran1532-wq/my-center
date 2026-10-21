@@ -19,7 +19,14 @@ export default function AskPage() {
   const [selected, setSelected] = useState<number>(-1);
   const endRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), [turns.length, busy]);
+  // Scroll only this page's own window: scrollIntoView can also move a frame's host page.
+  useEffect(() => {
+    if (turns.length === 0) return;
+    const el = endRef.current;
+    if (!el) return;
+    const top = el.getBoundingClientRect().bottom + window.scrollY - window.innerHeight + 24;
+    if (top > window.scrollY) window.scrollTo({ top, behavior: "smooth" });
+  }, [turns.length, busy]);
 
   const errorText = (code: string) =>
     code.startsWith("demo:") ? `${t.errGeneric} (${code.slice(5)})` :

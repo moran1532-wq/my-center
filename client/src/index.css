@@ -205,3 +205,5 @@ blockquote {
   .topbar { flex-wrap: wrap; }
   .tabs { order: 3; width: 100%; margin: 0; }
 }
+.crash { max-width: 640px; margin: 40px auto; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.crash code { background: var(--bg); padding: 8px 10px; border-radius: 8px; white-space: pre-wrap; word-break: break-word; }
