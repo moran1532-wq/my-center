@@ -6,7 +6,7 @@ a 3-day gap report, and closing the loop with document uploads.
 
 ## Phases
 
-- [ ] **Phase 1: Sample Knowledge Base** - Mock water-product knowledge and a screen to view it
+- [x] **Phase 1: Sample Knowledge Base** - Mock water-product knowledge and a screen to view it
 - [ ] **Phase 2: Ask And Answer** - Question in, full Claude answer out, source on the side
 - [ ] **Phase 3: Gap Tracking** - Honest no-answer, question logged, similar questions counted
 - [ ] **Phase 4: Gap Report** - Report every 3 days, sorted by frequency, to responsible staff
