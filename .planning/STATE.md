@@ -40,3 +40,4 @@ Progress: [██████████] 100%
 - 2026-10-21: Phase 4 acceptance passed 4/4. Next: phase 5 discussion (last).
 - 2026-10-21: Phase 5 built (two-step upload: file/link/paste → Claude analysis + gap check → translate + save + close gaps; closed tab; report 'closed since'). 57 tests. Security: login now HIGH before go-live. Next: owner acceptance.
 - 2026-10-21: Phase 5 acceptance passed 5/5 (found+fixed: question confused with doc title in preview; stricter gap-closing rule; copy buttons added on request). Milestone gate: sign-in added (proxy/dev, owner/member, guard test), CI + dependabot, security 0 open findings. MILESTONE v1 COMPLETE. Deferred: Teams, intranet-wide ingestion.
+- 2026-10-21: Owner chose to stop after milestone. Resume: open a session with this repo and say 'נחמיה, ממשיכים'. Open items: real key/SMTP/link test in their network; next milestone candidates: Teams, intranet ingestion.
