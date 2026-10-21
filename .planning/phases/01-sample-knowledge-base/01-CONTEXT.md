@@ -8,7 +8,8 @@
   - 3 documents: product spec; new customer onboarding guide; alert types and meaning
 - Fields per item: title, type (procedure / document / customer answer), topic, last updated date, owner
 - Browse: list + filter by type + quick word search + click opens full item
-- Hebrew, RTL
+- Interface bilingual: Hebrew (default, RTL) + English (LTR), language switch button, choice remembered
+- Mock content in Hebrew for v1; phase 2: Claude answers in the language the question was asked
 
 ## Technical decisions (Nehemiah)
 - client: React + Vite + TypeScript
