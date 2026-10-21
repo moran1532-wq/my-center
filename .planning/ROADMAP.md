@@ -3,9 +3,9 @@
 
 Goal: cut cost per question by 1/2 to 2/3 at the same or better answer quality; measure it.
 
-- [ ] **Phase 6: Cost Meter And Smart Search** - Measure cost per question; send Claude only the relevant documents
-- [ ] **Phase 7: Answer Memory** - Repeated questions answered instantly from memory; stale answers dropped when documents change
-- [ ] **Phase 8: Gap Check In Answer** - The answer call also tells whether there is a gap; no second call
+- [x] **Phase 6: Cost Meter And Smart Search** - Measure cost per question; send Claude only the relevant documents
+- [x] **Phase 7: Answer Memory** - Repeated questions answered instantly from memory; stale answers dropped when documents change
+- [x] **Phase 8: Gap Check In Answer** - The answer call also tells whether there is a gap; no second call
 
 ### Phase 6: Cost Meter And Smart Search
 <!-- קטע 6 - מד עלויות וחיפוש חכם -->

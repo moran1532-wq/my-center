@@ -22,10 +22,10 @@ See: .planning/PROJECT.md (updated 2026-10-21)
 
 Phase: 6 of 8 (Cost Meter And Smart Search) - milestone 2
 Plan: 0 of 0 in current phase
-Status: Built - awaiting acceptance test (milestone 2)
+Status: Milestone 2 complete
 Last activity: 2026-10-21 - Project scoped, summary and 5-phase roadmap approved by owner
 
-Progress: [██████████] 100% (acceptance pending)
+Progress: [██████████] 100%
 
 ## Session Log
 - 2026-10-21: Scoping done in a cloud session. Owner chose to continue on her own computer
@@ -43,3 +43,4 @@ Progress: [██████████] 100% (acceptance pending)
 - 2026-10-21: Owner chose to stop after milestone. Resume: open a session with this repo and say 'נחמיה, ממשיכים'. Open items: real key/SMTP/link test in their network; next milestone candidates: Teams, intranet ingestion.
 - 2026-10-21: Milestone 2 "cost-efficient system" opened and approved (phases 6-8).
 - 2026-10-21: Milestone 2 built (owner: "build everything, tell me when done"): cost meter, smart search (BM25 he/en, >=20 docs, top 6), answer memory (30 days, emptied on knowledge change), coverage mark → gap check only when needed. 89 tests, security 0 findings. Next: owner acceptance of phases 6-8 + confirm phase 7/8 recommendations.
+- 2026-10-21: Milestone 2 acceptance passed 4/4 (search 6 of 42 docs, combined 3 docs; memory hit; memory emptied on upload; didn't-help forgets). Owner confirmed phase 7/8 choices by passing tests. MILESTONE 2 COMPLETE.
