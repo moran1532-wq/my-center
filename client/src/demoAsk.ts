@@ -39,8 +39,9 @@ export class DemoAskError extends Error {
 }
 
 export async function demoAsk(question: string, docs: KnowledgeItem[], conversationId?: string): Promise<AskResult> {
-  const sample = await window.claude?.use("sample");
-  if (!sample) throw new DemoAskError("no_key");
+  if (!window.claude) throw new DemoAskError("demo:no_runtime");
+  const sample = await window.claude.use("sample");
+  if (!sample) throw new DemoAskError("demo:unavailable");
 
   let conv = conversationId ? conversations.get(conversationId) : undefined;
   if (conversationId && !conv) throw new DemoAskError("conversation_expired");
@@ -57,8 +58,9 @@ export async function demoAsk(question: string, docs: KnowledgeItem[], conversat
     reply = await sample.json<Reply>([{ role: "user", content: `${RULES}\n\n${library}` }, ...conv.turns], { cache: false });
   } catch (e) {
     conv.turns.pop();
-    const code = (e as { code?: string }).code;
-    throw new DemoAskError(code === "rate_limited" ? "busy" : code === "not_granted" || code === "sampling_disabled" ? "no_key" : "unknown");
+    const err = e as { code?: string; message?: string; text?: string };
+    console.error("preview ask failed", err.code, err.message, err.text?.slice(0, 500));
+    throw new DemoAskError(err.code === "rate_limited" ? "busy" : `demo:${err.code ?? "unknown"}`);
   }
 
   // Keep only quotes that really appear in the document - the same guarantee real citations give.

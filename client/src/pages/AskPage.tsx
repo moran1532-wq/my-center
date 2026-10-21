@@ -22,6 +22,7 @@ export default function AskPage() {
   useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), [turns.length, busy]);
 
   const errorText = (code: string) =>
+    code.startsWith("demo:") ? `${t.errGeneric} (${code.slice(5)})` :
     ({ no_key: t.errNoKey, bad_key: t.errBadKey, busy: t.errBusy, conversation_expired: t.errExpired, conversation_too_long: t.errTooLong } as Record<string, string>)[code] ??
     t.errGeneric;
 
