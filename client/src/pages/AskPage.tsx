@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { ask, AskError, type AskResult } from "../api";
+import { ask, AskError, sendFeedback, type AskResult } from "../api";
 import { useLang } from "../i18n";
 import TypeBadge from "../TypeBadge";
 
@@ -8,6 +8,7 @@ interface Turn {
   question: string;
   result?: AskResult;
   error?: string;
+  feedback?: "sending" | "sent";
 }
 
 export default function AskPage() {
@@ -51,6 +52,18 @@ export default function AskPage() {
       setTurns((prev) => prev.map((tr, i) => (i === index ? { ...tr, error: code } : tr)));
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function notHelpful(index: number) {
+    const r = turns[index]?.result;
+    if (!r) return;
+    setTurns((prev) => prev.map((tr, i) => (i === index ? { ...tr, feedback: "sending" } : tr)));
+    try {
+      await sendFeedback(r.conversationId, r.turn);
+      setTurns((prev) => prev.map((tr, i) => (i === index ? { ...tr, feedback: "sent" } : tr)));
+    } catch {
+      setTurns((prev) => prev.map((tr, i) => (i === index ? { ...tr, feedback: undefined } : tr)));
     }
   }
 
@@ -109,6 +122,17 @@ export default function AskPage() {
                   </span>
                 )}
               </button>
+            )}
+            {turn.result?.status === "answered" && (
+              <div className="answer-footer">
+                {turn.feedback === "sent" ? (
+                  <span className="muted small">{t.notHelpfulThanks}</span>
+                ) : (
+                  <button type="button" className="link-btn" onClick={() => notHelpful(i)} disabled={!!turn.feedback}>
+                    {t.notHelpful}
+                  </button>
+                )}
+              </div>
             )}
             {turn.error && <div className="bubble error-bubble">{errorText(turn.error)}</div>}
           </div>

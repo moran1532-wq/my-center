@@ -3,3 +3,4 @@ dist/
 .env
 *.zip
 dist-demo/
+server/data/gaps.json

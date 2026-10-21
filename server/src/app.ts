@@ -5,12 +5,13 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { KnowledgeStore } from "./store/KnowledgeStore.js";
 import type { KnowledgeType, Lang } from "./types.js";
 import { ConversationNotFoundError, ConversationTooLongError, type AnswerService } from "./answer/AnswerService.js";
+import type { GapService } from "./gaps/GapService.js";
 
 const TYPES: KnowledgeType[] = ["procedure", "document", "customer_answer"];
 const langOf = (v: unknown): Lang => (v === "en" ? "en" : "he");
 const MAX_QUESTION = 2000;
 
-export function createApp(store: KnowledgeStore, answers: AnswerService | null) {
+export function createApp(store: KnowledgeStore, answers: AnswerService | null, gaps: GapService | null = null) {
   const app = express();
   // Only origins listed in ALLOWED_ORIGINS may call the API from a browser.
   // In development the client goes through the Vite proxy, so none are needed.
@@ -36,6 +37,9 @@ export function createApp(store: KnowledgeStore, answers: AnswerService | null) 
     res.json(item);
   });
 
+  /** answers already counted as a gap (by the automatic check or by feedback) */
+  const feedbackGiven = new Set<string>();
+
   // Each question costs money, so it gets its own, tighter limit.
   const askLimit = rateLimit({ windowMs: 60_000, limit: 20, standardHeaders: true, legacyHeaders: false });
 
@@ -49,7 +53,17 @@ export function createApp(store: KnowledgeStore, answers: AnswerService | null) 
       return res.status(400).json({ error: "invalid conversation" });
     }
     try {
-      res.json(await answers.ask({ question: question.trim(), lang: langOf(req.body.lang), conversationId }));
+      const lang = langOf(req.body.lang);
+      const result = await answers.ask({ question: question.trim(), lang, conversationId });
+      res.json(result);
+      // Gap check runs after the answer is sent, so it never slows the answer down.
+      if (gaps && result.status === "answered") {
+        const answerText = result.segments.map((s) => s.text).join("");
+        const key = `${result.conversationId}:${result.turn}`;
+        gaps.consider({ question: question.trim(), answerText, lang, notHelpful: false })
+          .then((gap) => gap && feedbackGiven.add(key)) // already a gap: "didn't help" must not count it twice
+          .catch((e) => console.error("gap check failed:", e instanceof Error ? e.message : e));
+      }
     } catch (err) {
       if (err instanceof ConversationNotFoundError) return res.status(404).json({ error: "conversation_expired" });
       if (err instanceof ConversationTooLongError) return res.status(409).json({ error: "conversation_too_long" });
@@ -62,6 +76,41 @@ export function createApp(store: KnowledgeStore, answers: AnswerService | null) 
       res.status(502).json({ error: "ai_unavailable" });
     }
   });
+
+  app.post("/api/feedback", askLimit, async (req, res) => {
+    if (!answers || !gaps) return res.status(503).json({ error: "no_key" });
+    const { conversationId, turn } = req.body ?? {};
+    if (typeof conversationId !== "string" || conversationId.length > 100 || !Number.isInteger(turn) || turn < 0) {
+      return res.status(400).json({ error: "invalid feedback" });
+    }
+    const key = `${conversationId}:${turn}`;
+    if (feedbackGiven.has(key)) return res.json({ ok: true });
+    const t = await answers.turn(conversationId, turn);
+    if (!t) return res.status(404).json({ error: "conversation_expired" });
+    feedbackGiven.add(key);
+    try {
+      await gaps.consider({ ...t, notHelpful: true });
+      res.json({ ok: true });
+    } catch (e) {
+      feedbackGiven.delete(key);
+      console.error("feedback gap failed:", e instanceof Error ? e.message : e);
+      res.status(502).json({ error: "ai_unavailable" });
+    }
+  });
+
+  app.get("/api/gaps", async (_req, res) => {
+    if (!gaps) return res.json([]);
+    res.json(await gaps.list());
+  });
+
+  for (const [action, status] of [["dismiss", "dismissed"], ["restore", "open"]] as const) {
+    app.post(`/api/gaps/:id/${action}`, async (req, res) => {
+      if (!gaps) return res.status(503).json({ error: "no_key" });
+      const gap = await gaps.setStatus(req.params.id, status);
+      if (!gap) return res.status(404).json({ error: "not found" });
+      res.json(gap);
+    });
+  }
 
   return app;
 }

@@ -36,6 +36,7 @@ export interface AnswerSegment { text: string; sourceRefs: number[] }
 export interface AnswerSource { number: number; id: string; title: string; type: KnowledgeType; passages: string[] }
 export interface AskResult {
   conversationId: string;
+  turn: number;
   status: "answered" | "declined";
   segments: AnswerSegment[];
   sources: AnswerSource[];
@@ -69,4 +70,40 @@ export async function ask(question: string, lang: Lang, conversationId?: string)
     throw new AskError(res.status === 429 ? "busy" : body.error ?? "unknown");
   }
   return res.json();
+}
+
+export type { Gap, GapExample, GapReason } from "../../server/src/gaps/types";
+import type { Gap } from "../../server/src/gaps/types";
+
+async function post(url: string, body?: unknown) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const b = await res.json().catch(() => ({}));
+    throw new AskError(res.status === 429 ? "busy" : b.error ?? "unknown");
+  }
+  return res.json();
+}
+
+export async function sendFeedback(conversationId: string, turn: number): Promise<void> {
+  if (DEMO) return (await import("./demoAsk")).demoFeedback(conversationId, turn);
+  await post("/api/feedback", { conversationId, turn });
+}
+
+export async function listGaps(): Promise<Gap[]> {
+  if (DEMO) return (await import("./demoAsk")).demoGaps().list();
+  const res = await fetch("/api/gaps");
+  if (!res.ok) throw new Error(String(res.status));
+  return res.json();
+}
+
+export async function setGapStatus(id: string, action: "dismiss" | "restore"): Promise<void> {
+  if (DEMO) {
+    await (await import("./demoAsk")).demoGaps().setStatus(id, action === "dismiss" ? "dismissed" : "open");
+    return;
+  }
+  await post(`/api/gaps/${encodeURIComponent(id)}/${action}`);
 }

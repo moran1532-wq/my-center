@@ -1,6 +1,9 @@
 // Preview only (VITE_DEMO): answers come from Claude through the claude.ai page
 // runtime, on the viewer's own account. The real system uses the server instead.
 import type { AskResult, AnswerSource, KnowledgeItem } from "./api";
+import { GapService } from "../../server/src/gaps/GapService";
+import { buildAnalyzerPrompt } from "../../server/src/gaps/analyzerPrompt";
+import type { AnalyzeGap, Gap, GapStatus, GapStore, GapVerdict } from "../../server/src/gaps/types";
 
 interface SampleFn {
   json<T>(input: { role: "user" | "assistant"; content: string }[], opts?: object): Promise<T>;
@@ -16,7 +19,7 @@ interface Reply {
   quotes: { doc: number; quote: string }[];
 }
 
-const conversations = new Map<string, { docs: KnowledgeItem[]; turns: { role: "user" | "assistant"; content: string }[] }>();
+const conversations = new Map<string, { lang: "he" | "en"; docs: KnowledgeItem[]; turns: { role: "user" | "assistant"; content: string }[] }>();
 
 const RULES = `You are the knowledge assistant of a water-technology company's internal team. Answer ONLY from the numbered documents below.
 - Never use outside knowledge or guess numbers, steps or policies.
@@ -47,7 +50,7 @@ export async function demoAsk(question: string, docs: KnowledgeItem[], conversat
   if (conversationId && !conv) throw new DemoAskError("conversation_expired");
   const id = conversationId ?? crypto.randomUUID();
   if (!conv) {
-    conv = { docs, turns: [] };
+    conv = { lang: /[\u0590-\u05FF]/.test(question) ? "he" : "en", docs, turns: [] };
     conversations.set(id, conv);
   }
   const library = conv.docs.map((d, i) => `=== Document ${i}: ${d.title} (${d.type}, topic: ${d.topic}) ===\n${d.body}`).join("\n\n");
@@ -83,6 +86,85 @@ export async function demoAsk(question: string, docs: KnowledgeItem[], conversat
     text: String(seg.text ?? ""),
     sourceRefs: [...new Set((seg.sources ?? []).map((n) => numberOf.get(n)).filter((n): n is number => !!n))].sort(),
   }));
-  conv.turns.push({ role: "assistant", content: segments.map((s) => s.text).join("") || "-" });
-  return { conversationId: id, status: "answered", segments, sources };
+  const answerText = segments.map((s) => s.text).join("");
+  conv.turns.push({ role: "assistant", content: answerText || "-" });
+  const turn = conv.turns.filter((t) => t.role === "user").length - 1;
+  demoGaps().consider({ question, answerText, lang: conv.lang, notHelpful: false })
+    .then((gap) => gap && counted.add(`${id}:${turn}`))
+    .catch((e) => console.error("preview gap check failed", e));
+  return { conversationId: id, turn, status: "answered", segments, sources };
+}
+
+// ---- gaps in the preview: kept in this browser only ----
+
+const KEY = "preview-gaps";
+
+class LocalGapStore implements GapStore {
+  private mem: Gap[] | null = null;
+  private read(): Gap[] {
+    if (this.mem) return this.mem;
+    try {
+      this.mem = JSON.parse(localStorage.getItem(KEY) ?? "[]");
+    } catch {
+      this.mem = [];
+    }
+    return this.mem!;
+  }
+  async list(status?: GapStatus) {
+    return this.read().filter((g) => !status || g.status === status).map((g) => structuredClone(g));
+  }
+  async get(id: string) {
+    const g = this.read().find((x) => x.id === id);
+    return g && structuredClone(g);
+  }
+  async save(gap: Gap) {
+    const all = this.read().filter((g) => g.id !== gap.id);
+    all.push(structuredClone(gap));
+    this.mem = all;
+    try {
+      localStorage.setItem(KEY, JSON.stringify(all));
+    } catch {
+      /* storage unavailable: keep in memory for this visit */
+    }
+  }
+}
+
+const sampleAnalyzer: AnalyzeGap = async (candidate, existing) => {
+  const sample = await window.claude?.use("sample");
+  if (!sample) throw new Error("preview runtime unavailable");
+  const v = await sample.json<GapVerdict>(
+    [{ role: "user", content: buildAnalyzerPrompt(candidate, existing) +
+      '\n\nReply with only JSON: {"kind":"answered|partial|no_info|off_topic","gapTitleHe":"","gapTitleEn":"","matchesGapId":null}' }],
+    { cache: false, modelTier: "quick" },
+  );
+  const kinds = ["answered", "partial", "no_info", "off_topic"];
+  return {
+    kind: kinds.includes(v?.kind) ? v.kind : "answered",
+    gapTitleHe: String(v?.gapTitleHe ?? ""),
+    gapTitleEn: String(v?.gapTitleEn ?? ""),
+    matchesGapId: typeof v?.matchesGapId === "string" ? v.matchesGapId : null,
+  };
+};
+
+let gapService: GapService | null = null;
+export function demoGaps() {
+  gapService ??= new GapService(sampleAnalyzer, new LocalGapStore(), () => crypto.randomUUID());
+  return gapService;
+}
+
+const counted = new Set<string>();
+
+export async function demoFeedback(conversationId: string, turn: number) {
+  if (counted.has(`${conversationId}:${turn}`)) return;
+  const conv = conversations.get(conversationId);
+  const users = conv?.turns.flatMap((t, i) => (t.role === "user" ? [i] : [])) ?? [];
+  const at = users[turn];
+  if (!conv || at === undefined) throw new DemoAskError("conversation_expired");
+  await demoGaps().consider({
+    question: conv.turns[at].content,
+    answerText: conv.turns[at + 1]?.content ?? "",
+    lang: conv.lang,
+    notHelpful: true,
+  });
+  counted.add(`${conversationId}:${turn}`);
 }

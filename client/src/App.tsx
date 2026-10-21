@@ -3,6 +3,7 @@ import { useLang } from "./i18n";
 import AskPage from "./pages/AskPage";
 import KnowledgeList from "./pages/KnowledgeList";
 import KnowledgeView from "./pages/KnowledgeView";
+import GapsPage from "./pages/GapsPage";
 
 export default function App() {
   const { t, toggle } = useLang();
@@ -19,6 +20,7 @@ export default function App() {
         <nav className="tabs">
           <NavLink to="/" end>{t.navAsk}</NavLink>
           <NavLink to="/browse">{t.navBrowse}</NavLink>
+          <NavLink to="/gaps">{t.navGaps}</NavLink>
         </nav>
         <button className="lang-btn" onClick={toggle}>{t.switchTo}</button>
       </header>
@@ -27,6 +29,7 @@ export default function App() {
           <Route path="/" element={<AskPage />} />
           <Route path="/browse" element={<KnowledgeList />} />
           <Route path="/item/:id" element={<KnowledgeView />} />
+          <Route path="/gaps" element={<GapsPage />} />
         </Routes>
       </main>
     </div>

@@ -33,6 +33,8 @@ export interface AnswerSource {
 
 export interface AskResult {
   conversationId: string;
+  /** 0-based number of this question in the conversation (used for feedback) */
+  turn: number;
   status: "answered" | "declined";
   segments: AnswerSegment[];
   sources: AnswerSource[];
@@ -99,10 +101,31 @@ export class AnswerService {
     });
     await this.conversations.save(conversation);
 
+    const turn = conversation.messages.filter((m) => m.role === "user").length - 1;
     if (response.stop_reason === "refusal") {
-      return { conversationId: conversation.id, status: "declined", segments: [], sources: [] };
+      return { conversationId: conversation.id, turn, status: "declined", segments: [], sources: [] };
     }
-    return { conversationId: conversation.id, status: "answered", ...mapAnswer(response, conversation.documents) };
+    return { conversationId: conversation.id, turn, status: "answered", ...mapAnswer(response, conversation.documents) };
+  }
+
+  /** The question and answer text of one turn - so feedback never trusts text sent by the browser. */
+  async turn(conversationId: string, turn: number) {
+    const c = await this.conversations.get(conversationId);
+    if (!c) return undefined;
+    const userIdx = c.messages.flatMap((m, i) => (m.role === "user" ? [i] : []));
+    const at = userIdx[turn];
+    if (at === undefined) return undefined;
+    const textOf = (content: Anthropic.Beta.BetaMessageParam["content"]) =>
+      !content || typeof content === "string"
+        ? content ?? ""
+        : content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
+    const user = c.messages[at];
+    const assistant = c.messages[at + 1];
+    const userContent = user.content;
+    const question = !userContent || typeof userContent === "string"
+      ? userContent ?? ""
+      : userContent.flatMap((b) => (b.type === "text" ? [b.text] : [])).at(-1) ?? "";
+    return { question, answerText: assistant ? textOf(assistant.content) : "", lang: c.lang };
   }
 }
 
