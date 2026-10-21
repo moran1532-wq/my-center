@@ -1,20 +1,25 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { listGaps, setGapStatus, type Gap } from "../api";
 import { useLang } from "../i18n";
+import UploadDialog from "../UploadDialog";
 
 export default function GapsPage() {
   const { t, lang } = useLang();
   const [gaps, setGaps] = useState<Gap[] | null>(null);
   const [error, setError] = useState(false);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [tab, setTab] = useState<"open" | "closed">("open");
+  const [uploading, setUploading] = useState<Gap | null>(null);
 
-  const load = () => listGaps().then((g) => (setGaps(g), setError(false))).catch(() => setError(true));
+  const load = () => listGaps(tab).then((g) => (setGaps(g), setError(false))).catch(() => setError(true));
   useEffect(() => {
+    setGaps(null);
     load();
     // checks run in the background after each answer - keep the list fresh
     const timer = setInterval(load, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [tab]);
 
   async function toggle(id: string, dismiss: boolean) {
     try {
@@ -36,9 +41,16 @@ export default function GapsPage() {
     <section className="gaps">
       <h1>{t.gapsTitle}</h1>
       <p className="muted">{t.gapsIntro}</p>
+      <div className="chips" role="tablist">
+        {(["open", "closed"] as const).map((x) => (
+          <button key={x} role="tab" aria-selected={tab === x} className={tab === x ? "chip active" : "chip"} onClick={() => setTab(x)}>
+            {x === "open" ? t.tabOpen : t.tabClosed}
+          </button>
+        ))}
+      </div>
       {error && <p className="state error">{t.gapsLoadError}</p>}
       {!error && gaps === null && <p className="state">{t.loading}</p>}
-      {gaps?.length === 0 && <p className="state">{t.gapsEmpty}</p>}
+      {gaps?.length === 0 && <p className="state">{tab === "open" ? t.gapsEmpty : t.closedEmpty}</p>}
       <ul className="gap-list">
         {gaps?.map((g) =>
           dismissed.has(g.id) ? (
@@ -62,13 +74,30 @@ export default function GapsPage() {
                   </li>
                 ))}
               </ul>
-              <div className="gap-actions">
-                <button className="ghost" onClick={() => toggle(g.id, true)}>{t.notAGap}</button>
-              </div>
+              {tab === "open" ? (
+                <div className="gap-actions">
+                  <button className="ghost" onClick={() => toggle(g.id, true)}>{t.notAGap}</button>
+                  <button className="primary" onClick={() => setUploading(g)}>{t.uploadDoc}</button>
+                </div>
+              ) : (
+                <p className="small closed-line">
+                  ✓ {t.closedOn}: {g.closedAt ? date(g.closedAt) : ""}
+                  {g.closedByItemId && <> · <Link to={`/item/${g.closedByItemId}`}>{t.closedBy}</Link></>}
+                </p>
+              )}
             </li>
           ),
         )}
       </ul>
+      {uploading && (
+        <UploadDialog
+          gap={{ id: uploading.id, title: lang === "he" ? uploading.titleHe : uploading.titleEn }}
+          onClose={(changed) => {
+            setUploading(null);
+            if (changed) load();
+          }}
+        />
+      )}
     </section>
   );
 }

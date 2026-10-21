@@ -8,6 +8,13 @@ import { ReportService } from "../../server/src/reports/ReportService";
 import { PersistedRecipients, PersistedReports, PersistedStats, type Persist } from "../../server/src/reports/collections";
 import { buildReportHtml, reportSubject } from "../../server/src/reports/reportHtml";
 import type { Recipient, ReportData, QuestionStat } from "../../server/src/reports/types";
+import { IntakeService } from "../../server/src/intake/IntakeService";
+import { buildIntakePrompt, buildTranslatePrompt } from "../../server/src/intake/intakePrompt";
+import type { IntakeAnalysis } from "../../server/src/intake/types";
+import type { KnowledgeFilter, Lang as KLang, StoredKnowledgeItem } from "../../server/src/types";
+import { localize, queryKnowledge } from "../../server/src/knowledgeQuery";
+import type { KnowledgeStore } from "../../server/src/store/KnowledgeStore";
+import type { UploadCommit, UploadPreview, UploadSource } from "./api";
 
 interface SampleFn {
   json<T>(input: { role: "user" | "assistant"; content: string }[], opts?: object): Promise<T>;
@@ -237,4 +244,95 @@ export async function demoFeedback(conversationId: string, turn: number) {
     notHelpful: true,
   });
   counted.add(`${conversationId}:${turn}`);
+}
+
+// ---- uploading in the preview: text and HTML only, kept in this browser ----
+
+const uploadsPersist = new LocalPersist<StoredKnowledgeItem>("preview-uploads");
+export const demoUploads = () => uploadsPersist.read();
+
+const demoKnowledge: KnowledgeStore = {
+  async list(filter?: KnowledgeFilter) {
+    const samples = (await import("../../server/data/knowledge.json")).default as StoredKnowledgeItem[];
+    return queryKnowledge([...(await uploadsPersist.read()), ...samples], filter);
+  },
+  async get(id: string, lang?: KLang) {
+    const samples = (await import("../../server/data/knowledge.json")).default as StoredKnowledgeItem[];
+    const item = [...(await uploadsPersist.read()), ...samples].find((i) => i.id === id);
+    return item && localize(item, lang);
+  },
+  async add(item: StoredKnowledgeItem) {
+    const all = await uploadsPersist.read();
+    await uploadsPersist.write([...all.filter((i) => i.id !== item.id), item]);
+  },
+};
+
+async function sampleFn() {
+  const sample = await window.claude?.use("sample");
+  if (!sample) throw new DemoAskError("demo:unavailable");
+  return sample;
+}
+
+let intake: IntakeService | null = null;
+function demoIntake() {
+  intake ??= new IntakeService({
+    knowledge: demoKnowledge,
+    gaps: demoGaps(),
+    newId: () => crypto.randomUUID(),
+    analyze: async (text, target, open) => {
+      const sample = await sampleFn();
+      const v = await sample.json<IntakeAnalysis>([{ role: "user", content: buildIntakePrompt(text, target, open) +
+        '\n\nReply with only JSON: {"titleHe":"","titleEn":"","type":"procedure|document|customer_answer","topicHe":"","topicEn":"","sourceLang":"he|en","targetGap":' +
+        (target ? '{"answers":true,"explanationHe":"","explanationEn":""}' : "null") + ',"alsoAnswersGapIds":[]}' }], { cache: false });
+      const types = ["procedure", "document", "customer_answer"];
+      return {
+        titleHe: String(v?.titleHe ?? ""), titleEn: String(v?.titleEn ?? ""),
+        type: types.includes(v?.type) ? v.type : "document",
+        topicHe: String(v?.topicHe ?? ""), topicEn: String(v?.topicEn ?? ""),
+        sourceLang: v?.sourceLang === "en" ? "en" : "he",
+        targetGap: target && v?.targetGap ? { answers: !!v.targetGap.answers, explanationHe: String(v.targetGap.explanationHe ?? ""), explanationEn: String(v.targetGap.explanationEn ?? "") } : null,
+        alsoAnswersGapIds: Array.isArray(v?.alsoAnswersGapIds) ? v.alsoAnswersGapIds.map(String) : [],
+      };
+    },
+    translate: async (text, to) => {
+      const sample = (await sampleFn()) as unknown as (input: { role: "user"; content: string }[], o?: object) => Promise<{ text: string }>;
+      const { text: out } = await sample([{ role: "user", content: buildTranslatePrompt(text, to) }], { cache: false });
+      return out.trim();
+    },
+  });
+  return intake;
+}
+
+function textFromHtml(html: string) {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  doc.querySelectorAll("script,style,nav,img").forEach((n) => n.remove());
+  return (doc.body?.innerText || doc.body?.textContent || "").trim();
+}
+
+export async function demoPreviewUpload(src: UploadSource): Promise<UploadPreview> {
+  let raw = "";
+  let kind: "html" | "text" | "paste" = "paste";
+  if (src.file) {
+    const ext = src.file.name.toLowerCase().split(".").pop();
+    if (src.file.size > 10 * 1024 * 1024) throw new DemoAskError("too_large");
+    if (ext === "html" || ext === "htm") { raw = textFromHtml(await src.file.text()); kind = "html"; }
+    else if (ext === "txt" || ext === "md") { raw = await src.file.text(); kind = "text"; }
+    else throw new DemoAskError("server_only");
+  } else if (src.url) throw new DemoAskError("server_only");
+  else raw = src.text ?? "";
+  const clean = raw.replace(/\n{3,}/g, "\n\n").trim();
+  if (!clean) throw new DemoAskError("empty");
+  const truncated = clean.length > 60000;
+  const text = truncated ? clean.slice(0, 60000) : clean;
+  const d = await demoIntake().preview({ extracted: { text, kind, truncated }, gapId: src.gapId ?? null });
+  return { draftId: d.id, kind, truncated, excerpt: text.slice(0, 1500), chars: text.length, sourceUrl: null, analysis: d.analysis, suggestedGaps: d.suggestedGaps };
+}
+
+export async function demoCommitUpload(c: UploadCommit) {
+  try {
+    return await demoIntake().commit(c);
+  } catch (e) {
+    if ((e as Error)?.constructor?.name === "DraftNotFoundError") throw new DemoAskError("draft_expired");
+    throw e;
+  }
 }

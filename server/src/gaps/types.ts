@@ -1,7 +1,7 @@
 import type { Lang } from "../types.js";
 
 export type GapReason = "no_info" | "partial" | "not_helpful";
-export type GapStatus = "open" | "dismissed";
+export type GapStatus = "open" | "dismissed" | "closed";
 
 export interface GapExample {
   question: string;
@@ -19,6 +19,9 @@ export interface Gap {
   examples: GapExample[]; // newest first, at most MAX_EXAMPLES
   firstAskedAt: string;
   lastAskedAt: string;
+  /** set when a document closed the gap */
+  closedAt?: string;
+  closedByItemId?: string;
 }
 
 /** What the analyzer decides about one question. */

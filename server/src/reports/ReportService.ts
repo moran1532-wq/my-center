@@ -39,6 +39,9 @@ export class ReportService {
     const stats = await this.d.stats.since(periodStart);
     const count = (o: string) => stats.filter((s) => s.outcome === o).length;
     const gaps = (await this.d.gaps.list()).map((g) => ({ ...g, isNew: !previous || g.firstAskedAt > previous.createdAt }));
+    const closed = (await this.d.gaps.listClosed())
+      .filter((g) => g.closedAt && g.closedAt > periodStart)
+      .map((g) => ({ id: g.id, titleHe: g.titleHe, titleEn: g.titleEn, closedAt: g.closedAt! }));
 
     const report: ReportData = {
       id: this.d.newId(),
@@ -52,6 +55,7 @@ export class ReportService {
         noInfo: count("no_info"),
       },
       gaps,
+      closed,
       delivery: { emailed: [], failed: [], note: "sent" },
     };
 

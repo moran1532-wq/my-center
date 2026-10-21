@@ -1,4 +1,4 @@
-import type { KnowledgeFilter, KnowledgeItem, Lang } from "../types.js";
+import type { KnowledgeFilter, KnowledgeItem, Lang, StoredKnowledgeItem } from "../types.js";
 
 /**
  * Storage contract for the knowledge base.
@@ -7,4 +7,6 @@ import type { KnowledgeFilter, KnowledgeItem, Lang } from "../types.js";
 export interface KnowledgeStore {
   list(filter?: KnowledgeFilter): Promise<KnowledgeItem[]>;
   get(id: string, lang?: Lang): Promise<KnowledgeItem | undefined>;
+  /** Adds an uploaded document. */
+  add(item: StoredKnowledgeItem): Promise<void>;
 }

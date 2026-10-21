@@ -15,6 +15,7 @@ const T = {
     isNew: "חדש",
     howAsked: "איך שאלו:",
     reasons: { no_info: "אין מידע", partial: "תשובה חלקית", not_helpful: "לא עזר" },
+    closedHeading: (n: number) => (n === 1 ? "פער אחד נסגר מאז הדוח הקודם" : `${n} פערים נסגרו מאז הדוח הקודם`),
     footer: "כדי לסגור פער - מעלים מסמך שעונה עליו. בפעם הבאה שמישהו ישאל, תהיה תשובה.",
     subject: (n: number, d: string) => `דוח פערי ידע - ${n === 1 ? "פער פתוח אחד" : `${n} פערים פתוחים`} (${d})`,
   },
@@ -31,6 +32,7 @@ const T = {
     isNew: "New",
     howAsked: "How people asked:",
     reasons: { no_info: "No info", partial: "Partial answer", not_helpful: "Didn't help" },
+    closedHeading: (n: number) => (n === 1 ? "1 gap closed since the last report" : `${n} gaps closed since the last report`),
     footer: "To close a gap, upload a document that answers it. Next time someone asks, there will be an answer.",
     subject: (n: number, d: string) => `Knowledge gap report - ${n === 1 ? "1 open gap" : `${n} open gaps`} (${d})`,
   },
@@ -77,6 +79,14 @@ export function buildReportHtml(r: ReportData, lang: Lang): string {
     })
     .join("");
 
+  const closed = r.closed ?? [];
+  const closedRows = closed.length
+    ? `<tr><td style="${font}text-align:${align};font-size:17px;font-weight:bold;color:#11806a;padding:10px 0;">✓ ${esc(t.closedHeading(closed.length))}</td></tr>
+       <tr><td style="${font}text-align:${align};padding-bottom:14px;"><ul style="margin:0;padding-${lang === "he" ? "right" : "left"}:18px;font-size:14px;color:#13222f;">
+       ${closed.map((c) => `<li style="margin:2px 0;">${esc(lang === "he" ? c.titleHe : c.titleEn)} <span style="font-size:12px;color:#5b6b79;">(${esc(fmtDate(c.closedAt, lang))})</span></li>`).join("")}
+       </ul></td></tr>`
+    : "";
+
   return `<!doctype html>
 <html lang="${lang}" dir="${dir}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(t.title)}</title></head>
@@ -94,6 +104,7 @@ export function buildReportHtml(r: ReportData, lang: Lang): string {
   <tr><td style="${font}text-align:${align};font-size:17px;font-weight:bold;color:#13222f;padding:20px 0 10px;">
     ${r.gaps.length ? esc(t.gapsHeading(r.gaps.length)) : esc(t.none)}</td></tr>
   <tr><td><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${gapRows}</table></td></tr>
+  ${closedRows}
   <tr><td style="${font}text-align:${align};font-size:13px;color:#5b6b79;padding-top:10px;border-top:1px solid #dde4ea;">${esc(t.footer)}</td></tr>
 </table></td></tr></table></body></html>`;
 }

@@ -22,7 +22,7 @@ See: .planning/PROJECT.md (updated 2026-10-21)
 
 Phase: 5 of 5 (Knowledge Upload)
 Plan: 0 of 0 in current phase
-Status: Ready to discuss
+Status: Built - awaiting acceptance test
 Last activity: 2026-10-21 - Project scoped, summary and 5-phase roadmap approved by owner
 
 Progress: [████████░░] 80%
@@ -38,3 +38,4 @@ Progress: [████████░░] 80%
 - 2026-10-21: Phase 3 acceptance passed 6/6 (found+fixed: didn't-help double count race; added gaps auto refresh). Next: phase 4 discussion.
 - 2026-10-21: Phase 4 built (stats, HTML report builder, ReportService + 3-day 08:00 schedule, SMTP mailer tested against local SMTP, reports tab, owners list). 40 tests. Next: owner acceptance.
 - 2026-10-21: Phase 4 acceptance passed 4/4. Next: phase 5 discussion (last).
+- 2026-10-21: Phase 5 built (two-step upload: file/link/paste → Claude analysis + gap check → translate + save + close gaps; closed tab; report 'closed since'). 57 tests. Security: login now HIGH before go-live. Next: owner acceptance.

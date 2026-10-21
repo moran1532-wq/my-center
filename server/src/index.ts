@@ -14,18 +14,21 @@ import { ReportService } from "./reports/ReportService.js";
 import { JsonFilePersist } from "./reports/JsonFilePersist.js";
 import { PersistedRecipients, PersistedReports, PersistedStats } from "./reports/collections.js";
 import { smtpMailerFromEnv } from "./reports/smtpMailer.js";
+import { IntakeService } from "./intake/IntakeService.js";
+import { claudeAnalyzeDocument, claudeTranslate } from "./intake/claudeIntake.js";
+import type { StoredKnowledgeItem } from "./types.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dataFile = process.env.KNOWLEDGE_FILE ?? path.join(here, "..", "data", "knowledge.json");
 const port = Number(process.env.PORT ?? 3001);
 
-const store = new JsonKnowledgeStore(dataFile);
+const dataDir = process.env.DATA_DIR ?? path.join(here, "..", "data");
+const store = new JsonKnowledgeStore(dataFile, new JsonFilePersist<StoredKnowledgeItem>(path.join(dataDir, "uploaded.json")));
 
 const client = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
 const answers = client
   ? new AnswerService(claudeCreateMessage(client), new AllDocumentsRetriever(store), new MemoryConversationStore())
   : null;
-const dataDir = process.env.DATA_DIR ?? path.join(here, "..", "data");
 const stats = new PersistedStats(new JsonFilePersist(path.join(dataDir, "question-stats.json")));
 const noAnalyzer = async () => {
   throw new Error("ANTHROPIC_API_KEY is not set");
@@ -50,6 +53,12 @@ setInterval(checkReport, 10 * 60 * 1000);
 checkReport();
 if (!answers) console.warn("ANTHROPIC_API_KEY is not set - questions are disabled until it is.");
 
-createApp(store, answers, gaps, { service: reportService, recipients }).listen(port, () => {
+const allowedHosts = (process.env.LINK_ALLOWED_HOSTS ?? "").split(",").map((h) => h.trim()).filter(Boolean);
+if (!allowedHosts.length) console.warn("LINK_ALLOWED_HOSTS is not set - uploading from links is off.");
+const intake = client
+  ? new IntakeService({ analyze: claudeAnalyzeDocument(client), translate: claudeTranslate(client), knowledge: store, gaps, newId: randomUUID })
+  : null;
+
+createApp(store, answers, gaps, { service: reportService, recipients }, intake ? { intake, allowedHosts } : null).listen(port, () => {
   console.log(`Knowledge center server on http://localhost:${port}`);
 });

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { listKnowledge, type KnowledgeSummary, type KnowledgeType } from "../api";
 import { useLang } from "../i18n";
 import TypeBadge from "../TypeBadge";
+import UploadDialog from "../UploadDialog";
 
 const FILTERS: (KnowledgeType | undefined)[] = [undefined, "procedure", "customer_answer", "document"];
 
@@ -12,6 +13,8 @@ export default function KnowledgeList() {
   const [q, setQ] = useState("");
   const [items, setItems] = useState<KnowledgeSummary[] | null>(null);
   const [error, setError] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -24,7 +27,7 @@ export default function KnowledgeList() {
       alive = false;
       clearTimeout(handle);
     };
-  }, [lang, type, q]);
+  }, [lang, type, q, reload]);
 
   const label = (f: KnowledgeType | undefined) =>
     f === undefined ? t.all : f === "procedure" ? t.procedures : f === "document" ? t.documents : t.customer_answers;
@@ -45,6 +48,7 @@ export default function KnowledgeList() {
             </button>
           ))}
         </div>
+        <button className="primary" onClick={() => setAdding(true)}>{t.addDoc}</button>
         <input
           className="search"
           type="search"
@@ -78,6 +82,7 @@ export default function KnowledgeList() {
           </li>
         ))}
       </ul>
+      {adding && <UploadDialog gap={null} onClose={(changed) => { setAdding(false); if (changed) setReload((n) => n + 1); }} />}
     </section>
   );
 }

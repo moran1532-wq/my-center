@@ -8,3 +8,4 @@ server/data/question-stats.json
 server/data/recipients.json
 server/data/reports.json
 server/data/*.tmp
+server/data/uploaded.json

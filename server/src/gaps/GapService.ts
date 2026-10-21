@@ -46,6 +46,12 @@ export class GapService {
     const match = verdict.matchesGapId ? all.find((g) => g.id === verdict.matchesGapId) : undefined;
     if (match) {
       // A dismissed gap stays dismissed: it is counted, but never comes back to the list.
+      // A closed gap that is asked again was not really answered - it reopens.
+      if (match.status === "closed") {
+        match.status = "open";
+        delete match.closedAt;
+        delete match.closedByItemId;
+      }
       match.count += 1;
       match.lastAskedAt = at;
       match.examples = [example, ...match.examples].slice(0, MAX_EXAMPLES);
@@ -72,7 +78,26 @@ export class GapService {
     return (await this.store.list("open")).sort((a, b) => b.count - a.count || b.lastAskedAt.localeCompare(a.lastAskedAt));
   }
 
-  async setStatus(id: string, status: Gap["status"]): Promise<Gap | undefined> {
+  async listClosed() {
+    return (await this.store.list("closed")).sort((a, b) => (b.closedAt ?? "").localeCompare(a.closedAt ?? ""));
+  }
+
+  /** A document answered this gap. */
+  async close(id: string, itemId: string): Promise<Gap | undefined> {
+    const gap = await this.store.get(id);
+    if (!gap || gap.status !== "open") return undefined;
+    gap.status = "closed";
+    gap.closedAt = this.now().toISOString();
+    gap.closedByItemId = itemId;
+    await this.store.save(gap);
+    return gap;
+  }
+
+  async get(id: string) {
+    return this.store.get(id);
+  }
+
+  async setStatus(id: string, status: "open" | "dismissed"): Promise<Gap | undefined> {
     const gap = await this.store.get(id);
     if (!gap) return undefined;
     gap.status = status;

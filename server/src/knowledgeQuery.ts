@@ -9,6 +9,7 @@ export function localize(item: StoredKnowledgeItem, lang: Lang = "he"): Knowledg
     type: item.type,
     updatedAt: item.updatedAt,
     isSample: item.isSample,
+    ...(item.sourceUrl ? { sourceUrl: item.sourceUrl } : {}),
     lang: tr ? lang : "he",
     title: text.title,
     topic: text.topic,

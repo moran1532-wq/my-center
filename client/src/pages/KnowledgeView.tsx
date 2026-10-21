@@ -32,6 +32,9 @@ export default function KnowledgeView() {
             <div><dt>{t.topic}</dt><dd>{item.topic}</dd></div>
             <div><dt>{t.updated}</dt><dd>{new Date(item.updatedAt).toLocaleDateString(lang === "he" ? "he-IL" : "en-GB")}</dd></div>
             <div><dt>{t.owner}</dt><dd>{item.owner}</dd></div>
+            {item.sourceUrl && (
+              <div><dt>{t.sourceLink}</dt><dd><a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" dir="ltr">{new URL(item.sourceUrl).hostname}</a></dd></div>
+            )}
           </dl>
           <div className="body" dir="auto">
             {item.body.split(/\n\s*\n/).map((p, n) => (

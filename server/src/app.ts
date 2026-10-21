@@ -9,6 +9,9 @@ import type { GapService } from "./gaps/GapService.js";
 import type { ReportService } from "./reports/ReportService.js";
 import type { RecipientStore, ReportData } from "./reports/types.js";
 import { buildReportHtml, reportSubject } from "./reports/reportHtml.js";
+import multer from "multer";
+import { ExtractError, MAX_FILE_BYTES, extractFromFile, extractFromLink, extractFromPaste } from "./intake/extract.js";
+import { DraftNotFoundError, type IntakeService } from "./intake/IntakeService.js";
 
 const TYPES: KnowledgeType[] = ["procedure", "document", "customer_answer"];
 const langOf = (v: unknown): Lang => (v === "en" ? "en" : "he");
@@ -19,6 +22,13 @@ export interface Reporting {
   recipients: RecipientStore;
 }
 
+export interface Uploads {
+  intake: IntakeService;
+  /** hosts links may be read from (LINK_ALLOWED_HOSTS) */
+  allowedHosts: string[];
+  fetchImpl?: typeof fetch;
+}
+
 const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/;
 
 export function createApp(
@@ -26,6 +36,7 @@ export function createApp(
   answers: AnswerService | null,
   gaps: GapService | null = null,
   reporting: Reporting | null = null,
+  uploads: Uploads | null = null,
 ) {
   const app = express();
   // Only origins listed in ALLOWED_ORIGINS may call the API from a browser.
@@ -118,9 +129,9 @@ export function createApp(
     }
   });
 
-  app.get("/api/gaps", async (_req, res) => {
+  app.get("/api/gaps", async (req, res) => {
     if (!gaps) return res.json([]);
-    res.json(await gaps.list());
+    res.json(req.query.status === "closed" ? await gaps.listClosed() : await gaps.list());
   });
 
   for (const [action, status] of [["dismiss", "dismissed"], ["restore", "open"]] as const) {
@@ -131,6 +142,75 @@ export function createApp(
       res.json(gap);
     });
   }
+
+  // ---- uploading knowledge ----
+  const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_FILE_BYTES, files: 1, fields: 5 } });
+  const uploadLimit = rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: true, legacyHeaders: false });
+  const KNOWLEDGE_TYPES: KnowledgeType[] = ["procedure", "document", "customer_answer"];
+
+  app.post("/api/uploads/preview", uploadLimit, (req, res, next) => {
+    upload.single("file")(req, res, (err) => {
+      if (err) return res.status(400).json({ error: err.code === "LIMIT_FILE_SIZE" ? "too_large" : "bad_upload" });
+      next();
+    });
+  }, async (req, res) => {
+    if (!uploads) return res.status(503).json({ error: "no_key" });
+    const { url, text, gapId } = req.body ?? {};
+    try {
+      let extracted;
+      let sourceUrl: string | undefined;
+      if (req.file) {
+        // multer reads names as latin1; Hebrew file names need utf8
+        const name = Buffer.from(req.file.originalname, "latin1").toString("utf8");
+        extracted = await extractFromFile(req.file.buffer, name);
+      } else if (typeof url === "string" && url.trim()) {
+        const r = await extractFromLink(url.trim(), uploads.allowedHosts, uploads.fetchImpl);
+        extracted = r;
+        sourceUrl = r.finalUrl;
+      } else if (typeof text === "string" && text.trim()) {
+        extracted = extractFromPaste(text.slice(0, 200_000));
+      } else return res.status(400).json({ error: "empty" });
+
+      const draft = await uploads.intake.preview({
+        extracted, sourceUrl, gapId: typeof gapId === "string" && gapId ? gapId : null,
+      });
+      res.json({
+        draftId: draft.id,
+        kind: draft.extracted.kind,
+        truncated: draft.extracted.truncated,
+        excerpt: draft.extracted.text.slice(0, 1500),
+        chars: draft.extracted.text.length,
+        sourceUrl: draft.sourceUrl ?? null,
+        analysis: draft.analysis,
+        suggestedGaps: draft.suggestedGaps,
+      });
+    } catch (e) {
+      if (e instanceof ExtractError) return res.status(400).json({ error: e.code });
+      console.error("upload preview failed:", e instanceof Error ? e.message : e);
+      res.status(502).json({ error: "ai_unavailable" });
+    }
+  });
+
+  app.post("/api/uploads/commit", uploadLimit, async (req, res) => {
+    if (!uploads) return res.status(503).json({ error: "no_key" });
+    const b = req.body ?? {};
+    const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+    if (typeof b.draftId !== "string" || !KNOWLEDGE_TYPES.includes(b.type)) return res.status(400).json({ error: "invalid" });
+    const titleHe = str(b.titleHe, 200);
+    const titleEn = str(b.titleEn, 200);
+    if (!titleHe && !titleEn) return res.status(400).json({ error: "missing_title" });
+    const closeGapIds = Array.isArray(b.closeGapIds) ? b.closeGapIds.filter((x: unknown) => typeof x === "string").slice(0, 20) : [];
+    try {
+      res.json(await uploads.intake.commit({
+        draftId: b.draftId, type: b.type, titleHe, titleEn,
+        topicHe: str(b.topicHe, 60), topicEn: str(b.topicEn, 60), closeGapIds,
+      }));
+    } catch (e) {
+      if (e instanceof DraftNotFoundError) return res.status(404).json({ error: "draft_expired" });
+      console.error("upload commit failed:", e instanceof Error ? e.message : e);
+      res.status(502).json({ error: "ai_unavailable" });
+    }
+  });
 
   // ---- reports ----
   const summary = (r: ReportData) => ({

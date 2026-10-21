@@ -34,6 +34,8 @@ export interface ReportData {
   trigger: "schedule" | "manual";
   stats: { asked: number; answered: number; partial: number; noInfo: number };
   gaps: (Gap & { isNew: boolean })[];
+  /** gaps a document closed during this period (missing in reports made before this existed) */
+  closed?: { id: string; titleHe: string; titleEn: string; closedAt: string }[];
   delivery: { emailed: string[]; failed: string[]; note: "sent" | "no_mail_server" | "no_recipients" | "partial_failure" };
 }
 

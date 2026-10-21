@@ -11,8 +11,11 @@ const demoData = async (): Promise<StoredKnowledgeItem[]> =>
 
 const summarize = ({ body, ...rest }: KnowledgeItem): KnowledgeSummary => ({ ...rest, excerpt: body.slice(0, 160) });
 
+/** Preview: sample data + documents uploaded in this browser. */
+const demoAll = async (): Promise<StoredKnowledgeItem[]> => [...(await (await import("./demoAsk")).demoUploads()), ...(await demoData())];
+
 export async function listKnowledge(lang: Lang, type?: KnowledgeType, q?: string): Promise<KnowledgeSummary[]> {
-  if (DEMO) return queryKnowledge(await demoData(), { lang, type, q }).map(summarize);
+  if (DEMO) return queryKnowledge(await demoAll(), { lang, type, q }).map(summarize);
   const params = new URLSearchParams({ lang });
   if (type) params.set("type", type);
   if (q) params.set("q", q);
@@ -23,7 +26,7 @@ export async function listKnowledge(lang: Lang, type?: KnowledgeType, q?: string
 
 export async function getKnowledge(id: string, lang: Lang): Promise<KnowledgeItem | null> {
   if (DEMO) {
-    const item = (await demoData()).find((i) => i.id === id);
+    const item = (await demoAll()).find((i) => i.id === id);
     return item ? localize(item, lang) : null;
   }
   const res = await fetch(`/api/knowledge/${encodeURIComponent(id)}?lang=${lang}`);
@@ -53,7 +56,7 @@ export class AskError extends Error {
 export async function ask(question: string, lang: Lang, conversationId?: string): Promise<AskResult> {
   if (DEMO) {
     const { demoAsk, DemoAskError } = await import("./demoAsk");
-    const docs = queryKnowledge(await demoData(), { lang });
+    const docs = queryKnowledge(await demoAll(), { lang });
     try {
       return await demoAsk(question, docs, conversationId);
     } catch (e) {
@@ -93,9 +96,12 @@ export async function sendFeedback(conversationId: string, turn: number): Promis
   await post("/api/feedback", { conversationId, turn });
 }
 
-export async function listGaps(): Promise<Gap[]> {
-  if (DEMO) return (await import("./demoAsk")).demoGaps().list();
-  const res = await fetch("/api/gaps");
+export async function listGaps(status: "open" | "closed" = "open"): Promise<Gap[]> {
+  if (DEMO) {
+    const g = (await import("./demoAsk")).demoGaps();
+    return status === "closed" ? g.listClosed() : g.list();
+  }
+  const res = await fetch(`/api/gaps${status === "closed" ? "?status=closed" : ""}`);
   if (!res.ok) throw new Error(String(res.status));
   return res.json();
 }
@@ -155,4 +161,50 @@ export async function removeRecipient(id: string): Promise<void> {
   }
   const res = await fetch(`/api/recipients/${encodeURIComponent(id)}`, { method: "DELETE" });
   if (!res.ok) throw new Error(String(res.status));
+}
+
+// ---- uploading ----
+import type { IntakeAnalysis } from "../../server/src/intake/types";
+export interface UploadPreview {
+  draftId: string;
+  kind: string;
+  truncated: boolean;
+  excerpt: string;
+  chars: number;
+  sourceUrl: string | null;
+  analysis: IntakeAnalysis;
+  suggestedGaps: { id: string; titleHe: string; titleEn: string; isTarget: boolean }[];
+}
+export interface UploadSource { file?: File; url?: string; text?: string; gapId?: string | null }
+export interface UploadCommit {
+  draftId: string; titleHe: string; titleEn: string; type: KnowledgeType; topicHe: string; topicEn: string; closeGapIds: string[];
+}
+
+async function demoCall<T>(fn: () => Promise<T>): Promise<T> {
+  const { DemoAskError } = await import("./demoAsk");
+  try {
+    return await fn();
+  } catch (e) {
+    throw new AskError(e instanceof DemoAskError ? e.code.replace(/^demo:/, "") : "unknown");
+  }
+}
+
+export async function previewUpload(src: UploadSource): Promise<UploadPreview> {
+  if (DEMO) return demoCall(async () => (await import("./demoAsk")).demoPreviewUpload(src));
+  const form = new FormData();
+  if (src.gapId) form.append("gapId", src.gapId);
+  if (src.file) form.append("file", src.file);
+  else if (src.url) form.append("url", src.url);
+  else if (src.text) form.append("text", src.text);
+  const res = await fetch("/api/uploads/preview", { method: "POST", body: form });
+  if (!res.ok) {
+    const b = await res.json().catch(() => ({}));
+    throw new AskError(res.status === 429 ? "busy" : b.error ?? "unknown");
+  }
+  return res.json();
+}
+
+export async function commitUpload(c: UploadCommit): Promise<{ itemId: string; closed: { id: string }[] }> {
+  if (DEMO) return demoCall(async () => (await import("./demoAsk")).demoCommitUpload(c));
+  return post("/api/uploads/commit", c);
 }

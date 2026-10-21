@@ -16,3 +16,7 @@
 - Claude: analysis = structured output (title/type/topic he+en, source language, answers-gap verdict); translation = separate streamed call
 - Gap gets status "closed" + closedAt + closedByItemId
 - Preview: text, HTML and pasted text only (PDF/Word/link need the server)
+
+## Before going live (security)
+- HIGH: no login → anyone could add documents Claude answers from. Login + knowledge-owner role required before deployment.
+- Known: mammoth depends on argparse/sprintf-js (moderate, CLI-only path, not reachable from uploads)

@@ -14,6 +14,8 @@ export interface StoredKnowledgeItem extends LocalizedText {
   type: KnowledgeType;
   updatedAt: string; // YYYY-MM-DD
   isSample: boolean;
+  /** the web page this came from, when uploaded from a link */
+  sourceUrl?: string;
   translations?: Partial<Record<Lang, LocalizedText>>;
 }
 
@@ -23,6 +25,7 @@ export interface KnowledgeItem extends LocalizedText {
   type: KnowledgeType;
   updatedAt: string;
   isSample: boolean;
+  sourceUrl?: string;
   lang: Lang;
 }
 
