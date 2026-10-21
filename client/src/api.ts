@@ -209,3 +209,11 @@ export async function commitUpload(c: UploadCommit): Promise<{ itemId: string; c
   if (DEMO) return demoCall(async () => (await import("./demoAsk")).demoCommitUpload(c));
   return post("/api/uploads/commit", c);
 }
+
+export type Role = "owner" | "member";
+export async function getRole(): Promise<Role> {
+  if (DEMO) return "owner";
+  const res = await fetch("/api/me");
+  if (!res.ok) throw new AskError((await res.json().catch(() => ({}))).error ?? "unknown");
+  return (await res.json()).role === "owner" ? "owner" : "member";
+}

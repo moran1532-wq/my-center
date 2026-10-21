@@ -10,6 +10,8 @@ import type { ReportService } from "./reports/ReportService.js";
 import type { RecipientStore, ReportData } from "./reports/types.js";
 import { buildReportHtml, reportSubject } from "./reports/reportHtml.js";
 import multer from "multer";
+import { ownerOnly } from "./auth.js";
+import type { RequestHandler } from "express";
 import { ExtractError, MAX_FILE_BYTES, extractFromFile, extractFromLink, extractFromPaste } from "./intake/extract.js";
 import { DraftNotFoundError, type IntakeService } from "./intake/IntakeService.js";
 
@@ -37,6 +39,7 @@ export function createApp(
   gaps: GapService | null = null,
   reporting: Reporting | null = null,
   uploads: Uploads | null = null,
+  auth: RequestHandler = (req, _res, next) => { req.viewer = { email: "test", role: "owner" }; next(); },
 ) {
   const app = express();
   // Only origins listed in ALLOWED_ORIGINS may call the API from a browser.
@@ -45,6 +48,9 @@ export function createApp(
   app.use(cors({ origin: origins.length ? origins : false }));
   app.use("/api", rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: true, legacyHeaders: false }));
   app.use(express.json({ limit: "32kb" }));
+  app.use("/api", auth);
+
+  app.get("/api/me", (req, res) => res.json({ role: req.viewer!.role }));
 
   app.get("/api/knowledge", async (req, res) => {
     const type = typeof req.query.type === "string" ? req.query.type : undefined;
@@ -135,7 +141,7 @@ export function createApp(
   });
 
   for (const [action, status] of [["dismiss", "dismissed"], ["restore", "open"]] as const) {
-    app.post(`/api/gaps/:id/${action}`, async (req, res) => {
+    app.post(`/api/gaps/:id/${action}`, ownerOnly, async (req, res) => {
       if (!gaps) return res.status(503).json({ error: "no_key" });
       const gap = await gaps.setStatus(req.params.id, status);
       if (!gap) return res.status(404).json({ error: "not found" });
@@ -148,7 +154,7 @@ export function createApp(
   const uploadLimit = rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: true, legacyHeaders: false });
   const KNOWLEDGE_TYPES: KnowledgeType[] = ["procedure", "document", "customer_answer"];
 
-  app.post("/api/uploads/preview", uploadLimit, (req, res, next) => {
+  app.post("/api/uploads/preview", ownerOnly, uploadLimit, (req, res, next) => {
     upload.single("file")(req, res, (err) => {
       if (err) return res.status(400).json({ error: err.code === "LIMIT_FILE_SIZE" ? "too_large" : "bad_upload" });
       next();
@@ -191,7 +197,7 @@ export function createApp(
     }
   });
 
-  app.post("/api/uploads/commit", uploadLimit, async (req, res) => {
+  app.post("/api/uploads/commit", ownerOnly, uploadLimit, async (req, res) => {
     if (!uploads) return res.status(503).json({ error: "no_key" });
     const b = req.body ?? {};
     const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -226,7 +232,7 @@ export function createApp(
     res.json({ reports: reports.map(summary), nextDue: (await reporting.service.nextDue()).toISOString() });
   });
 
-  app.post("/api/reports", reportLimit, async (_req, res) => {
+  app.post("/api/reports", ownerOnly, reportLimit, async (_req, res) => {
     if (!reporting) return res.status(503).json({ error: "reports_off" });
     res.json(summary(await reporting.service.generate("manual")));
   });
@@ -239,11 +245,11 @@ export function createApp(
   });
 
   // ---- knowledge owners who get the report ----
-  app.get("/api/recipients", async (_req, res) => {
+  app.get("/api/recipients", ownerOnly, async (_req, res) => {
     res.json(reporting ? await reporting.recipients.list() : []);
   });
 
-  app.post("/api/recipients", async (req, res) => {
+  app.post("/api/recipients", ownerOnly, async (req, res) => {
     if (!reporting) return res.status(503).json({ error: "reports_off" });
     const { name, email, lang } = req.body ?? {};
     if (typeof name !== "string" || !name.trim() || name.length > 100) return res.status(400).json({ error: "invalid name" });
@@ -252,7 +258,7 @@ export function createApp(
     res.json(await reporting.recipients.add({ name: name.trim(), email: email.trim(), lang: langOf(lang) }));
   });
 
-  app.delete("/api/recipients/:id", async (req, res) => {
+  app.delete("/api/recipients/:id", ownerOnly, async (req, res) => {
     if (!reporting) return res.status(503).json({ error: "reports_off" });
     if (!(await reporting.recipients.remove(req.params.id))) return res.status(404).json({ error: "not found" });
     res.json({ ok: true });

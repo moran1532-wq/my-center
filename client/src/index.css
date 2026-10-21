@@ -318,3 +318,4 @@ blockquote {
 .answer-footer { gap: 12px; }
 .copy-btn { white-space: nowrap; }
 .closed-names { margin: 0; padding-inline-start: 18px; }
+.auth-banner { margin: 0; padding: 10px max(16px, env(safe-area-inset-left, 0px)); background: var(--danger-bg); color: var(--danger-text); text-align: center; }

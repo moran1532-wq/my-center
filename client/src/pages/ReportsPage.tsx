@@ -4,6 +4,7 @@ import {
   type Lang, type Recipient, type ReportSummary,
 } from "../api";
 import { useLang } from "../i18n";
+import { useIsOwner } from "../role";
 
 const DEMO = import.meta.env.VITE_DEMO === "1";
 
@@ -15,20 +16,21 @@ export default function ReportsPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [open, setOpen] = useState<ReportSummary | null>(null);
+  const isOwner = useIsOwner();
 
   const load = async () => {
     try {
       const r = await listReports();
       setReports(r.reports);
       setNextDue(r.nextDue);
-      setOwners(await listRecipients());
+      setOwners(isOwner ? await listRecipients() : []);
     } catch {
       setError(t.saveError);
     }
   };
   useEffect(() => {
     load();
-  }, []);
+  }, [isOwner]);
 
   async function makeNow() {
     setBusy(true);
@@ -57,7 +59,7 @@ export default function ReportsPage() {
           <p className="muted">{t.reportsIntro}</p>
           {nextDue && <p className="small">{t.nextReport}: <strong>{when(nextDue)}</strong></p>}
         </div>
-        <button className="primary" onClick={makeNow} disabled={busy}>{busy ? t.generating : t.generateNow}</button>
+        {isOwner && <button className="primary" onClick={makeNow} disabled={busy}>{busy ? t.generating : t.generateNow}</button>}
       </div>
       {error && <p className="state error">{error}</p>}
 
@@ -78,7 +80,7 @@ export default function ReportsPage() {
         ))}
       </ul>
 
-      <Owners owners={owners} onChange={load} />
+      {isOwner && <Owners owners={owners} onChange={load} />}
     </section>
   );
 }

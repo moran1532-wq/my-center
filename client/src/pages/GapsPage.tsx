@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { listGaps, setGapStatus, type Gap } from "../api";
 import { useLang } from "../i18n";
 import UploadDialog from "../UploadDialog";
+import { useIsOwner } from "../role";
 
 export default function GapsPage() {
   const { t, lang } = useLang();
@@ -10,6 +11,7 @@ export default function GapsPage() {
   const [error, setError] = useState(false);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [tab, setTab] = useState<"open" | "closed">("open");
+  const isOwner = useIsOwner();
   const [uploading, setUploading] = useState<Gap | null>(null);
 
   const load = () => listGaps(tab).then((g) => (setGaps(g), setError(false))).catch(() => setError(true));
@@ -75,7 +77,7 @@ export default function GapsPage() {
                 ))}
               </ul>
               {tab === "open" ? (
-                <div className="gap-actions">
+                isOwner && <div className="gap-actions">
                   <button className="ghost" onClick={() => toggle(g.id, true)}>{t.notAGap}</button>
                   <button className="primary" onClick={() => setUploading(g)}>{t.uploadDoc}</button>
                 </div>

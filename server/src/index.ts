@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
 import { createApp } from "./app.js";
+import { authFromEnv } from "./auth.js";
 import { JsonKnowledgeStore } from "./store/JsonKnowledgeStore.js";
 import { AnswerService, claudeCreateMessage } from "./answer/AnswerService.js";
 import { AllDocumentsRetriever } from "./answer/Retriever.js";
@@ -59,6 +60,10 @@ const intake = client
   ? new IntakeService({ analyze: claudeAnalyzeDocument(client), translate: claudeTranslate(client), knowledge: store, gaps, newId: randomUUID })
   : null;
 
-createApp(store, answers, gaps, { service: reportService, recipients }, intake ? { intake, allowedHosts } : null).listen(port, () => {
+const auth = authFromEnv();
+if (!process.env.AUTH_MODE) console.warn("AUTH_MODE is not set - every request will be refused. Use AUTH_MODE=proxy (or dev for local work).");
+if (process.env.AUTH_MODE === "dev") console.warn("AUTH_MODE=dev - everyone is a knowledge owner. For local development only.");
+
+createApp(store, answers, gaps, { service: reportService, recipients }, intake ? { intake, allowedHosts } : null, auth).listen(port, () => {
   console.log(`Knowledge center server on http://localhost:${port}`);
 });
