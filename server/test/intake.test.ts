@@ -115,7 +115,7 @@ describe("upload flow", () => {
     expect(await t.knowledge.list()).toHaveLength(12); // nothing saved yet
 
     const out = await t.intake.commit({ draftId: draft.id, titleHe: "מדיניות אחריות", titleEn: "Warranty policy", type: "document",
-      topicHe: "אחריות", topicEn: "Warranty", closeGapIds: [gap.id] });
+      topicHe: "אחריות", topicEn: "Warranty", closeGapIds: [gap.id], closeTargetAnyway: false });
     expect(out.closed.map((c) => c.id)).toEqual([gap.id]);
     const he = await t.knowledge.get(out.itemId, "he");
     const en = await t.knowledge.get(out.itemId, "en");
@@ -133,7 +133,24 @@ describe("upload flow", () => {
     const draft = await t.intake.preview({ extracted: extractFromPaste("מחירון"), gapId: gap.id });
     expect(draft.suggestedGaps).toEqual([]);
     expect(draft.analysis.targetGap?.explanationHe).toBe("אין בו משך אחריות");
-    await t.intake.commit({ draftId: draft.id, titleHe: "מחירון", titleEn: "Prices", type: "document", topicHe: "", topicEn: "", closeGapIds: [] });
+    await t.intake.commit({ draftId: draft.id, titleHe: "מחירון", titleEn: "Prices", type: "document", topicHe: "", topicEn: "", closeGapIds: [gap.id], closeTargetAnyway: false });
+    expect(await t.gaps.list()).toHaveLength(1); // asked to close, but Claude said it doesn't answer and "close anyway" was off
+  });
+
+  it("'close anyway' closes the target gap even when the document doesn't answer it", async () => {
+    const t = setup({ targetGap: { answers: false, explanationHe: "", explanationEn: "" } });
+    const gap = (await t.gaps.consider({ question: "מה האחריות?", answerText: "", lang: "he", notHelpful: false }))!;
+    const draft = await t.intake.preview({ extracted: extractFromPaste("מחירון"), gapId: gap.id });
+    const out = await t.intake.commit({ draftId: draft.id, titleHe: "מחירון", titleEn: "", type: "document", topicHe: "", topicEn: "", closeGapIds: [gap.id], closeTargetAnyway: true });
+    expect(out.closed).toHaveLength(1);
+  });
+
+  it("a gap that wasn't suggested can't be closed by sending its id", async () => {
+    const t = setup();
+    const other = (await t.gaps.consider({ question: "כמה עולה?", answerText: "", lang: "he", notHelpful: false }))!;
+    const draft = await t.intake.preview({ extracted: extractFromPaste("טקסט") });
+    const out = await t.intake.commit({ draftId: draft.id, titleHe: "x", titleEn: "", type: "document", topicHe: "", topicEn: "", closeGapIds: [other.id], closeTargetAnyway: true });
+    expect(out.closed).toHaveLength(0);
     expect(await t.gaps.list()).toHaveLength(1);
   });
 

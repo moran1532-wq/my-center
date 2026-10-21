@@ -293,7 +293,8 @@ function demoIntake() {
         type: types.includes(v?.type) ? v.type : "document",
         topicHe: String(v?.topicHe ?? ""), topicEn: String(v?.topicEn ?? ""),
         sourceLang: v?.sourceLang === "en" ? "en" : "he",
-        targetGap: target && v?.targetGap ? { answers: !!v.targetGap.answers, explanationHe: String(v.targetGap.explanationHe ?? ""), explanationEn: String(v.targetGap.explanationEn ?? "") } : null,
+        // only a real `true` counts - a garbled reply must never close a gap
+        targetGap: target && v?.targetGap ? { answers: v.targetGap.answers === true, explanationHe: String(v.targetGap.explanationHe ?? ""), explanationEn: String(v.targetGap.explanationEn ?? "") } : null,
         alsoAnswersGapIds: Array.isArray(v?.alsoAnswersGapIds) ? v.alsoAnswersGapIds.map(String) : [],
       };
     },

@@ -177,7 +177,8 @@ export interface UploadPreview {
 }
 export interface UploadSource { file?: File; url?: string; text?: string; gapId?: string | null }
 export interface UploadCommit {
-  draftId: string; titleHe: string; titleEn: string; type: KnowledgeType; topicHe: string; topicEn: string; closeGapIds: string[];
+  draftId: string; titleHe: string; titleEn: string; type: KnowledgeType; topicHe: string; topicEn: string;
+  closeGapIds: string[]; closeTargetAnyway: boolean;
 }
 
 async function demoCall<T>(fn: () => Promise<T>): Promise<T> {
@@ -204,7 +205,7 @@ export async function previewUpload(src: UploadSource): Promise<UploadPreview> {
   return res.json();
 }
 
-export async function commitUpload(c: UploadCommit): Promise<{ itemId: string; closed: { id: string }[] }> {
+export async function commitUpload(c: UploadCommit): Promise<{ itemId: string; closed: { id: string; titleHe: string; titleEn: string }[] }> {
   if (DEMO) return demoCall(async () => (await import("./demoAsk")).demoCommitUpload(c));
   return post("/api/uploads/commit", c);
 }

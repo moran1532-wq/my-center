@@ -317,3 +317,4 @@ blockquote {
 .error-row { display: flex; align-items: center; gap: 6px; align-self: flex-end; }
 .answer-footer { gap: 12px; }
 .copy-btn { white-space: nowrap; }
+.closed-names { margin: 0; padding-inline-start: 18px; }

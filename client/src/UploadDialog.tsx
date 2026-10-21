@@ -21,7 +21,7 @@ export default function UploadDialog({ gap, onClose }: {
   const [fields, setFields] = useState({ titleHe: "", titleEn: "", topicHe: "", topicEn: "", type: "document" as KnowledgeType });
   const [closeIds, setCloseIds] = useState<Set<string>>(new Set());
   const [closeTargetAnyway, setCloseTargetAnyway] = useState(false);
-  const [result, setResult] = useState<{ itemId: string; closed: number } | null>(null);
+  const [result, setResult] = useState<{ itemId: string; closed: { id: string; titleHe: string; titleEn: string }[] } | null>(null);
   const dialog = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,8 +64,8 @@ export default function UploadDialog({ gap, onClose }: {
     const ids = new Set(closeIds);
     if (gap && closeTargetAnyway) ids.add(gap.id);
     try {
-      const r = await commitUpload({ draftId: preview.draftId, ...fields, closeGapIds: [...ids] });
-      setResult({ itemId: r.itemId, closed: r.closed.length });
+      const r = await commitUpload({ draftId: preview.draftId, ...fields, closeGapIds: [...ids], closeTargetAnyway: !!gap && closeTargetAnyway });
+      setResult({ itemId: r.itemId, closed: r.closed });
       setStep("done");
     } catch (err) {
       setError(errorText(err));
@@ -176,7 +176,14 @@ export default function UploadDialog({ gap, onClose }: {
 
         {step === "done" && result && (
           <div className="dialog-body">
-            <p className="verdict ok"><strong>✓ {t.savedOk(result.closed)}</strong></p>
+            <div className="verdict ok">
+              <strong>✓ {t.savedOk(result.closed.length)}</strong>
+              {result.closed.length > 0 && (
+                <ul className="closed-names">
+                  {result.closed.map((g) => <li key={g.id} dir="auto">{lang === "he" ? g.titleHe : g.titleEn}</li>)}
+                </ul>
+              )}
+            </div>
             <div className="dialog-actions">
               <Link className="ghost as-button" to={`/item/${result.itemId}`} onClick={() => onClose(true)}>{t.openSaved}</Link>
               <button type="button" className="primary" onClick={() => onClose(true)}>{t.done}</button>

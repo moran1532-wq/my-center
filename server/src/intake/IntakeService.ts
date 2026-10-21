@@ -97,8 +97,11 @@ export class IntakeService {
     await this.knowledge.add(item);
     this.drafts.delete(draft.id);
 
+    // Only gaps the owner was shown as answered may close - plus the target gap when they chose "close anyway".
+    const allowed = new Set(draft.suggestedGaps.map((g) => g.id));
+    if (input.closeTargetAnyway && draft.targetGapId) allowed.add(draft.targetGapId);
     const closed = [];
-    for (const id of new Set(input.closeGapIds)) {
+    for (const id of new Set(input.closeGapIds.filter((x) => allowed.has(x)))) {
       const g = await this.gaps.close(id, item.id);
       if (g) closed.push({ id: g.id, titleHe: g.titleHe, titleEn: g.titleEn });
     }

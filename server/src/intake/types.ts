@@ -49,5 +49,8 @@ export interface CommitInput {
   type: KnowledgeType;
   topicHe: string;
   topicEn: string;
+  /** gaps to close - only gaps Claude found the document answers are accepted */
   closeGapIds: string[];
+  /** the owner checked "close anyway" for the gap they uploaded to */
+  closeTargetAnyway: boolean;
 }

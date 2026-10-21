@@ -203,7 +203,7 @@ export function createApp(
     try {
       res.json(await uploads.intake.commit({
         draftId: b.draftId, type: b.type, titleHe, titleEn,
-        topicHe: str(b.topicHe, 60), topicEn: str(b.topicEn, 60), closeGapIds,
+        topicHe: str(b.topicHe, 60), topicEn: str(b.topicEn, 60), closeGapIds, closeTargetAnyway: b.closeTargetAnyway === true,
       }));
     } catch (e) {
       if (e instanceof DraftNotFoundError) return res.status(404).json({ error: "draft_expired" });
