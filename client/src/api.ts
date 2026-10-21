@@ -1,35 +1,19 @@
-export type KnowledgeType = "procedure" | "document" | "customer_answer";
+import type { KnowledgeItem, KnowledgeType, Lang, StoredKnowledgeItem } from "../../server/src/types";
+import { localize, queryKnowledge } from "../../server/src/knowledgeQuery";
 
-export interface KnowledgeSummary {
-  id: string;
-  title: string;
-  type: KnowledgeType;
-  topic: string;
-  updatedAt: string;
-  owner: string;
-  isSample: boolean;
-  excerpt: string;
-}
-
-export interface KnowledgeItem extends Omit<KnowledgeSummary, "excerpt"> {
-  body: string;
-}
+export type { KnowledgeItem, KnowledgeType, Lang };
+export type KnowledgeSummary = Omit<KnowledgeItem, "body"> & { excerpt: string };
 
 // Demo mode: a static preview with the sample data bundled in, no server needed.
 const DEMO = import.meta.env.VITE_DEMO === "1";
-const demoData = async (): Promise<KnowledgeItem[]> =>
-  (await import("../../server/data/knowledge.json")).default as KnowledgeItem[];
+const demoData = async (): Promise<StoredKnowledgeItem[]> =>
+  (await import("../../server/data/knowledge.json")).default as StoredKnowledgeItem[];
 
-export async function listKnowledge(type?: KnowledgeType, q?: string): Promise<KnowledgeSummary[]> {
-  if (DEMO) {
-    const needle = q?.trim().toLowerCase();
-    return (await demoData())
-      .filter((i) => !type || i.type === type)
-      .filter((i) => !needle || [i.title, i.topic, i.body, i.owner].some((f) => f.toLowerCase().includes(needle)))
-      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-      .map(({ body, ...rest }) => ({ ...rest, excerpt: body.slice(0, 160) }));
-  }
-  const params = new URLSearchParams();
+const summarize = ({ body, ...rest }: KnowledgeItem): KnowledgeSummary => ({ ...rest, excerpt: body.slice(0, 160) });
+
+export async function listKnowledge(lang: Lang, type?: KnowledgeType, q?: string): Promise<KnowledgeSummary[]> {
+  if (DEMO) return queryKnowledge(await demoData(), { lang, type, q }).map(summarize);
+  const params = new URLSearchParams({ lang });
   if (type) params.set("type", type);
   if (q) params.set("q", q);
   const res = await fetch(`/api/knowledge?${params}`);
@@ -37,9 +21,12 @@ export async function listKnowledge(type?: KnowledgeType, q?: string): Promise<K
   return res.json();
 }
 
-export async function getKnowledge(id: string): Promise<KnowledgeItem | null> {
-  if (DEMO) return (await demoData()).find((i) => i.id === id) ?? null;
-  const res = await fetch(`/api/knowledge/${encodeURIComponent(id)}`);
+export async function getKnowledge(id: string, lang: Lang): Promise<KnowledgeItem | null> {
+  if (DEMO) {
+    const item = (await demoData()).find((i) => i.id === id);
+    return item ? localize(item, lang) : null;
+  }
+  const res = await fetch(`/api/knowledge/${encodeURIComponent(id)}?lang=${lang}`);
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(String(res.status));
   return res.json();

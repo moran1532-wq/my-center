@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import type { Lang } from "./api";
 
-export type Lang = "he" | "en";
+export type { Lang };
 
 const dict = {
   he: {

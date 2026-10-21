@@ -1,32 +1,26 @@
 import { readFile } from "node:fs/promises";
-import type { KnowledgeFilter, KnowledgeItem } from "../types.js";
+import type { KnowledgeFilter, KnowledgeItem, Lang, StoredKnowledgeItem } from "../types.js";
 import type { KnowledgeStore } from "./KnowledgeStore.js";
+import { localize, queryKnowledge } from "../knowledgeQuery.js";
 
 export class JsonKnowledgeStore implements KnowledgeStore {
-  private items: KnowledgeItem[] | null = null;
+  private items: StoredKnowledgeItem[] | null = null;
 
   constructor(private readonly filePath: string) {}
 
-  private async load(): Promise<KnowledgeItem[]> {
+  private async load(): Promise<StoredKnowledgeItem[]> {
     if (!this.items) {
-      this.items = JSON.parse(await readFile(this.filePath, "utf8")) as KnowledgeItem[];
+      this.items = JSON.parse(await readFile(this.filePath, "utf8")) as StoredKnowledgeItem[];
     }
     return this.items;
   }
 
   async list(filter: KnowledgeFilter = {}): Promise<KnowledgeItem[]> {
-    const q = filter.q?.trim().toLowerCase();
-    return (await this.load())
-      .filter((i) => !filter.type || i.type === filter.type)
-      .filter(
-        (i) =>
-          !q ||
-          [i.title, i.topic, i.body, i.owner].some((f) => f.toLowerCase().includes(q)),
-      )
-      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    return queryKnowledge(await this.load(), filter);
   }
 
-  async get(id: string): Promise<KnowledgeItem | undefined> {
-    return (await this.load()).find((i) => i.id === id);
+  async get(id: string, lang?: Lang): Promise<KnowledgeItem | undefined> {
+    const item = (await this.load()).find((i) => i.id === id);
+    return item && localize(item, lang);
   }
 }

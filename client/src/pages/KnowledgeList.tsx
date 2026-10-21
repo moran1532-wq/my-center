@@ -16,7 +16,7 @@ export default function KnowledgeList() {
   useEffect(() => {
     let alive = true;
     const handle = setTimeout(() => {
-      listKnowledge(type, q.trim() || undefined)
+      listKnowledge(lang, type, q.trim() || undefined)
         .then((r) => alive && (setItems(r), setError(false)))
         .catch(() => alive && setError(true));
     }, 200);
@@ -24,7 +24,7 @@ export default function KnowledgeList() {
       alive = false;
       clearTimeout(handle);
     };
-  }, [type, q]);
+  }, [lang, type, q]);
 
   const label = (f: KnowledgeType | undefined) =>
     f === undefined ? t.all : f === "procedure" ? t.procedures : f === "document" ? t.documents : t.customer_answers;

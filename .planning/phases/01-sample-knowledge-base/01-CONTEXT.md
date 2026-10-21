@@ -9,7 +9,8 @@
 - Fields per item: title, type (procedure / document / customer answer), topic, last updated date, owner
 - Browse: list + filter by type + quick word search + click opens full item
 - Interface bilingual: Hebrew (default, RTL) + English (LTR), language switch button, choice remembered
-- Mock content in Hebrew for v1; phase 2: Claude answers in the language the question was asked
+- Content bilingual too (owner feedback in acceptance test): every item has an English translation; English mode shows everything in English, search works in the chosen language
+- Phase 2: Claude answers in the language of the question
 
 ## Technical decisions (Nehemiah)
 - client: React + Vite + TypeScript
@@ -18,4 +19,4 @@
 - Deviation logged: research-before-plan skipped for this phase (simple, no unknown technical decision)
 
 ## Deferred
-- (none)
+- Phase 5: uploaded documents arrive in one language - auto-translate with Claude so both language modes stay complete

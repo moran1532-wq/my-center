@@ -11,8 +11,9 @@ export default function KnowledgeView() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    getKnowledge(id).then(setItem).catch(() => setError(true));
-  }, [id]);
+    setItem(undefined);
+    getKnowledge(id, lang).then(setItem).catch(() => setError(true));
+  }, [id, lang]);
 
   return (
     <article className="item">

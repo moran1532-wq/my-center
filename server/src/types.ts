@@ -1,17 +1,33 @@
 export type KnowledgeType = "procedure" | "document" | "customer_answer";
+export type Lang = "he" | "en";
 
-export interface KnowledgeItem {
-  id: string;
+export interface LocalizedText {
   title: string;
-  type: KnowledgeType;
   topic: string;
-  updatedAt: string; // YYYY-MM-DD
   owner: string;
-  isSample: boolean;
   body: string; // plain text, paragraphs separated by blank lines
+}
+
+/** Stored shape: Hebrew is the main text, other languages live in `translations`. */
+export interface StoredKnowledgeItem extends LocalizedText {
+  id: string;
+  type: KnowledgeType;
+  updatedAt: string; // YYYY-MM-DD
+  isSample: boolean;
+  translations?: Partial<Record<Lang, LocalizedText>>;
+}
+
+/** Shape returned to the screen: already in the requested language. */
+export interface KnowledgeItem extends LocalizedText {
+  id: string;
+  type: KnowledgeType;
+  updatedAt: string;
+  isSample: boolean;
+  lang: Lang;
 }
 
 export interface KnowledgeFilter {
   type?: KnowledgeType;
   q?: string;
+  lang?: Lang;
 }

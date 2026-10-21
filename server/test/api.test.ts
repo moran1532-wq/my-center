@@ -38,3 +38,22 @@ describe("knowledge API", () => {
     expect((await request(app).get("/api/knowledge/nope")).status).toBe(404);
   });
 });
+
+describe("languages", () => {
+  it("returns English content when asked", async () => {
+    const res = await request(app).get("/api/knowledge/doc-spec?lang=en");
+    expect(res.body.title).toBe("Product Specification - Monitoring and Shutoff Unit");
+    expect(res.body.lang).toBe("en");
+  });
+
+  it("searches in English", async () => {
+    const res = await request(app).get("/api/knowledge?lang=en&q=battery");
+    expect(res.body.length).toBe(5);
+    expect(res.body.every((i: any) => /[a-z]/i.test(i.title))).toBe(true);
+  });
+
+  it("every item has an English version", async () => {
+    const res = await request(app).get("/api/knowledge?lang=en");
+    expect(res.body.every((i: any) => i.lang === "en")).toBe(true);
+  });
+});

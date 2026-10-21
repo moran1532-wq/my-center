@@ -2,9 +2,10 @@ import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import type { KnowledgeStore } from "./store/KnowledgeStore.js";
-import type { KnowledgeType } from "./types.js";
+import type { KnowledgeType, Lang } from "./types.js";
 
 const TYPES: KnowledgeType[] = ["procedure", "document", "customer_answer"];
+const langOf = (v: unknown): Lang => (v === "en" ? "en" : "he");
 
 export function createApp(store: KnowledgeStore) {
   const app = express();
@@ -21,13 +22,13 @@ export function createApp(store: KnowledgeStore) {
       return res.status(400).json({ error: "invalid type" });
     }
     const q = typeof req.query.q === "string" ? req.query.q.slice(0, 200) : undefined;
-    const items = await store.list({ type: type as KnowledgeType | undefined, q });
+    const items = await store.list({ type: type as KnowledgeType | undefined, q, lang: langOf(req.query.lang) });
     // list view does not need the full body
     res.json(items.map(({ body, ...rest }) => ({ ...rest, excerpt: body.slice(0, 160) })));
   });
 
   app.get("/api/knowledge/:id", async (req, res) => {
-    const item = await store.get(req.params.id);
+    const item = await store.get(req.params.id, langOf(req.query.lang));
     if (!item) return res.status(404).json({ error: "not found" });
     res.json(item);
   });
