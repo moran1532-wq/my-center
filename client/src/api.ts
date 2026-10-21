@@ -42,6 +42,8 @@ export interface AnswerSource { number: number; id: string; title: string; type:
 export interface AskResult {
   conversationId: string;
   turn: number;
+  /** answered from memory - no Claude call (server sends the remembered outcome; preview sends true) */
+  fromMemory?: unknown;
   /** preview only: how many documents Claude read */
   docsRead?: { sent: number; total: number };
   status: "answered" | "declined";
@@ -226,7 +228,7 @@ export async function getRole(): Promise<Role> {
 
 export interface UsageInfo {
   measured: boolean;
-  month?: { questions: number; usd: number; perQuestionUsd: number };
+  month?: { questions: number; usd: number; perQuestionUsd: number; fromMemory: number };
 }
 export async function getUsage(): Promise<UsageInfo> {
   if (DEMO) return { measured: false };

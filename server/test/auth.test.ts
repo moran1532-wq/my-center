@@ -69,5 +69,6 @@ describe("guard", () => {
     expect(writes.length).toBeGreaterThanOrEqual(7);
     for (const r of writes) expect(r.names, `${r.method.toUpperCase()} ${r.path}`).toContain("ownerOnly");
     expect(routes.find((r) => r.path === "/api/recipients" && r.method === "get")!.names).toContain("ownerOnly");
+    expect(routes.find((r) => r.path === "/api/usage" && r.method === "get")!.names).toContain("ownerOnly");
   });
 });

@@ -3,10 +3,10 @@ gsd_state_version: '1.0'
 status: planning
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 8
   total_plans: 0
   completed_plans: 0
-  percent: 62
+  percent: 100
 ---
 
 # Project State
@@ -22,10 +22,10 @@ See: .planning/PROJECT.md (updated 2026-10-21)
 
 Phase: 6 of 8 (Cost Meter And Smart Search) - milestone 2
 Plan: 0 of 0 in current phase
-Status: Ready to discuss
+Status: Built - awaiting acceptance test (milestone 2)
 Last activity: 2026-10-21 - Project scoped, summary and 5-phase roadmap approved by owner
 
-Progress: [██████░░░░] 62%
+Progress: [██████████] 100% (acceptance pending)
 
 ## Session Log
 - 2026-10-21: Scoping done in a cloud session. Owner chose to continue on her own computer
@@ -42,3 +42,4 @@ Progress: [██████░░░░] 62%
 - 2026-10-21: Phase 5 acceptance passed 5/5 (found+fixed: question confused with doc title in preview; stricter gap-closing rule; copy buttons added on request). Milestone gate: sign-in added (proxy/dev, owner/member, guard test), CI + dependabot, security 0 open findings. MILESTONE v1 COMPLETE. Deferred: Teams, intranet-wide ingestion.
 - 2026-10-21: Owner chose to stop after milestone. Resume: open a session with this repo and say 'נחמיה, ממשיכים'. Open items: real key/SMTP/link test in their network; next milestone candidates: Teams, intranet ingestion.
 - 2026-10-21: Milestone 2 "cost-efficient system" opened and approved (phases 6-8).
+- 2026-10-21: Milestone 2 built (owner: "build everything, tell me when done"): cost meter, smart search (BM25 he/en, >=20 docs, top 6), answer memory (30 days, emptied on knowledge change), coverage mark → gap check only when needed. 89 tests, security 0 findings. Next: owner acceptance of phases 6-8 + confirm phase 7/8 recommendations.

@@ -14,8 +14,9 @@ import type { IntakeAnalysis } from "../../server/src/intake/types";
 import type { KnowledgeFilter, Lang as KLang, StoredKnowledgeItem } from "../../server/src/types";
 import { localize, queryKnowledge } from "../../server/src/knowledgeQuery";
 import { pickRelevant } from "../../server/src/answer/search";
+import { AnswerMemory, type MemoryEntry } from "../../server/src/answer/AnswerMemory";
 import type { KnowledgeStore } from "../../server/src/store/KnowledgeStore";
-import type { UploadCommit, UploadPreview, UploadSource } from "./api";
+import { largeMode, type UploadCommit, type UploadPreview, type UploadSource } from "./api";
 
 interface SampleFn {
   json<T>(input: { role: "user" | "assistant"; content: string }[], opts?: object): Promise<T>;
@@ -29,6 +30,7 @@ declare global {
 interface Reply {
   segments: { text: string; sources: number[] }[];
   quotes: { doc: number; quote: string }[];
+  coverage?: string;
 }
 
 const counted = new Set<string>();
@@ -45,8 +47,9 @@ const RULES = `You are the knowledge assistant of a water-technology company's i
 - Plain text, numbered lines for steps, no markdown.
 
 Reply with only JSON in this shape:
-{"segments":[{"text":"part of the answer","sources":[0]}],"quotes":[{"doc":0,"quote":"an exact sentence copied character for character from document 0"}]}
-"sources" lists the document numbers that support that part ([] when none). "quotes" holds 1-3 exact passages per document you used.`;
+{"segments":[{"text":"part of the answer","sources":[0]}],"quotes":[{"doc":0,"quote":"an exact sentence copied character for character from document 0"}],"coverage":"full"}
+"sources" lists the document numbers that support that part ([] when none). "quotes" holds 1-3 exact passages per document you used.
+"coverage": "full" (the documents fully answer the question), "partial" (part of it is not in the documents), "none" (nothing answers it) or "off_topic" (not about the company's work).`;
 
 export class DemoAskError extends Error {
   code: string;
@@ -66,7 +69,24 @@ export async function demoAsk(question: string, allDocs: KnowledgeItem[], otherL
   const id = conversationId ?? crypto.randomUUID();
   if (!conv) {
     const docs = pickRelevant(question, allDocs, otherLang);
-    conv = { total: allDocs.length, lang: /[\u0590-\u05FF]/.test(question) ? "he" : "en", docs, turns: [] };
+    // answer memory: the same first question gets the remembered answer, no Claude call
+    const version = await knowledgeVersion();
+    const remembered = await memory.find(question, langOf(question), version);
+    if (remembered) {
+      const c = { total: allDocs.length, lang: langOf(question), docs, turns: [
+        { role: "user" as const, content: `<question>\n${question}\n</question>` },
+        { role: "assistant" as const, content: remembered.segments.map((x) => x.text).join("") || "-" },
+      ] };
+      conversations.set(id, c);
+      const key = `${id}:0`;
+      pending.set(key, demoGaps().recordRepeat({ question, answerText: "", lang: c.lang, notHelpful: false }, remembered)
+        .then((gap) => { if (gap) counted.add(key); })
+        .catch((e) => console.error("preview memory count failed", e))
+        .finally(() => pending.delete(key)));
+      return { conversationId: id, turn: 0, status: "answered", segments: remembered.segments, sources: remembered.sources,
+        fromMemory: true, docsRead: { sent: 0, total: allDocs.length } };
+    }
+    conv = { total: allDocs.length, lang: langOf(question), docs, turns: [] };
     conversations.set(id, conv);
   }
   const library = conv.docs
@@ -109,10 +129,19 @@ export async function demoAsk(question: string, allDocs: KnowledgeItem[], otherL
   conv.turns.push({ role: "assistant", content: answerText || "-" });
   const turn = conv.turns.filter((t) => t.role === "user").length - 1;
   const key = `${id}:${turn}`;
-  pending.set(key, demoGaps().consider({ question, answerText, lang: conv.lang, notHelpful: false })
-    .then((gap) => { if (gap) counted.add(key); })
-    .catch((e) => console.error("preview gap check failed", e))
-    .finally(() => pending.delete(key)));
+  const coverage = ["full", "partial", "none", "off_topic"].includes(String(reply.coverage)) ? String(reply.coverage) : null;
+  const lang = conv.lang;
+  if (turn === 0) {
+    await memory.save({ lang, question, segments, sources, version: await knowledgeVersion(),
+      ...(coverage === "full" ? { outcome: "answered" as const, gapId: null } : coverage === "off_topic" ? { outcome: "off_topic" as const, gapId: null } : {}) });
+  }
+  const check = coverage === "full" || coverage === "off_topic"
+    ? demoGaps().recordOutcome(coverage === "full" ? "answered" : "off_topic") // no second call
+    : demoGaps().considerWithOutcome({ question, answerText, lang, notHelpful: false }).then(async ({ gap, outcome }) => {
+        if (gap) counted.add(key);
+        if (turn === 0) await memory.update(question, lang, { outcome, gapId: gap?.id ?? null });
+      });
+  pending.set(key, check.catch((e) => console.error("preview gap check failed", e)).finally(() => pending.delete(key)));
   return { conversationId: id, turn, status: "answered", segments, sources, docsRead: { sent: conv.docs.length, total: conv.total } };
 }
 
@@ -237,6 +266,9 @@ export function demoReports() {
 
 export async function demoFeedback(conversationId: string, turn: number) {
   await pending.get(`${conversationId}:${turn}`);
+  const c = conversations.get(conversationId);
+  const firstQ = c?.turns.find((t) => t.role === "user")?.content.replace(/^<question>\n?|\n?<\/question>$/g, "");
+  if (c && turn === 0 && firstQ) await memory.forget(firstQ, c.lang);
   if (counted.has(`${conversationId}:${turn}`)) return;
   const conv = conversations.get(conversationId);
   const users = conv?.turns.flatMap((t, i) => (t.role === "user" ? [i] : [])) ?? [];
@@ -265,6 +297,9 @@ const demoKnowledge: KnowledgeStore = {
     const samples = (await import("../../server/data/knowledge.json")).default as StoredKnowledgeItem[];
     const item = [...(await uploadsPersist.read()), ...samples].find((i) => i.id === id);
     return item && localize(item, lang);
+  },
+  async version() {
+    return knowledgeVersion();
   },
   async add(item: StoredKnowledgeItem) {
     const all = await uploadsPersist.read();
@@ -341,4 +376,12 @@ export async function demoCommitUpload(c: UploadCommit) {
     if ((e as Error)?.constructor?.name === "DraftNotFoundError") throw new DemoAskError("draft_expired");
     throw e;
   }
+}
+
+// ---- answer memory in the preview ----
+const memory = new AnswerMemory(new LocalPersist<MemoryEntry>("preview-memory"));
+const langOf = (q: string): "he" | "en" => (/[\u0590-\u05FF]/.test(q) ? "he" : "en");
+async function knowledgeVersion() {
+  const up = await uploadsPersist.read();
+  return `${up.length}:${up[up.length - 1]?.id ?? ""}:${largeMode() ? "L" : "S"}`;
 }

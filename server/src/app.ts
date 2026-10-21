@@ -92,14 +92,28 @@ export function createApp(
       const lang = langOf(req.body.lang);
       const result = await answers.ask({ question: question.trim(), lang, conversationId });
       res.json(result);
-      // Gap check runs after the answer is sent, so it never slows the answer down.
+      // Gap bookkeeping runs after the answer is sent, so it never slows the answer down.
       if (gaps && result.status === "answered") {
+        const q = question.trim();
         const answerText = result.segments.map((s) => s.text).join("");
         const key = `${result.conversationId}:${result.turn}`;
-        const check = gaps.consider({ question: question.trim(), answerText, lang, notHelpful: false })
-          .then((gap) => { if (gap) feedbackGiven.add(key); }) // already a gap: "didn't help" must not count it twice
-          .catch((e) => console.error("gap check failed:", e instanceof Error ? e.message : e))
-          .finally(() => pendingChecks.delete(key));
+        const log = (e: unknown) => console.error("gap check failed:", e instanceof Error ? e.message : e);
+        let check: Promise<void>;
+        if (result.fromMemory) {
+          reporting?.usage?.record("memory", "memory", {}).catch(log);
+          // remembered answer: count it on its gap without asking Claude again
+          check = gaps.recordRepeat({ question: q, answerText, lang, notHelpful: false }, result.fromMemory)
+            .then((gap) => { if (gap) feedbackGiven.add(key); });
+        } else if (result.coverage === "full" || result.coverage === "off_topic") {
+          // Claude already said it fully answered (or it's off topic) - no second call
+          check = gaps.recordOutcome(result.coverage === "full" ? "answered" : "off_topic");
+        } else {
+          check = gaps.considerWithOutcome({ question: q, answerText, lang, notHelpful: false }).then(async ({ gap, outcome }) => {
+            if (gap) feedbackGiven.add(key);
+            if (result.turn === 0) await answers.rememberOutcome(q, lang, outcome, gap?.id ?? null);
+          });
+        }
+        check = check.catch(log).finally(() => pendingChecks.delete(key));
         pendingChecks.set(key, check);
       }
     } catch (err) {
@@ -127,6 +141,7 @@ export function createApp(
     const t = await answers.turn(conversationId, turn);
     if (!t) return res.status(404).json({ error: "conversation_expired" });
     feedbackGiven.add(key);
+    if (turn === 0) await answers.forget(t.question, t.lang); // never serve this answer from memory again
     try {
       await gaps.consider({ ...t, notHelpful: true });
       res.json({ ok: true });

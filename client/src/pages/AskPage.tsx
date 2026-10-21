@@ -129,7 +129,8 @@ export default function AskPage() {
             )}
             {turn.result?.status === "answered" && (
               <div className="answer-footer">
-                {turn.result.docsRead && <span className="muted small">{t.docsSent(turn.result.docsRead.sent, turn.result.docsRead.total)}</span>}
+                {turn.result.fromMemory ? <span className="memory-tag">⚡ {t.fromMemory}</span> : null}
+                {turn.result.docsRead && !turn.result.fromMemory && <span className="muted small">{t.docsSent(turn.result.docsRead.sent, turn.result.docsRead.total)}</span>}
                 <CopyButton text={turn.result.segments.map((s) => s.text).join("").trim()} />
                 {turn.feedback === "sent" ? (
                   <span className="muted small">{t.notHelpfulThanks}</span>

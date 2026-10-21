@@ -74,7 +74,10 @@ export default function ReportsPage() {
           {!usage.measured ? (
             <span className="small">{t.costPreview}</span>
           ) : usage.month && usage.month.questions > 0 ? (
-            <strong>{t.costLine(usage.month.questions, money(usage.month.usd), money(usage.month.perQuestionUsd))}</strong>
+            <>
+              <strong>{t.costLine(usage.month.questions, money(usage.month.usd), money(usage.month.perQuestionUsd))}</strong>
+              {usage.month.fromMemory > 0 && <span className="small">⚡ {t.costMemory(usage.month.fromMemory)}</span>}
+            </>
           ) : (
             <span className="small">{t.costNone}</span>
           )}

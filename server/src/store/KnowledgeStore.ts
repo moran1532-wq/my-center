@@ -9,4 +9,6 @@ export interface KnowledgeStore {
   get(id: string, lang?: Lang): Promise<KnowledgeItem | undefined>;
   /** Adds an uploaded document. */
   add(item: StoredKnowledgeItem): Promise<void>;
+  /** changes whenever a document is added - remembered answers from an older version are dropped */
+  version(): Promise<string>;
 }

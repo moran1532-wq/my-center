@@ -6,6 +6,7 @@ import { authFromEnv } from "./auth.js";
 import { JsonKnowledgeStore } from "./store/JsonKnowledgeStore.js";
 import { AnswerService, claudeCreateMessage } from "./answer/AnswerService.js";
 import { SmartRetriever } from "./answer/Retriever.js";
+import { AnswerMemory, type MemoryEntry } from "./answer/AnswerMemory.js";
 import { MemoryConversationStore } from "./answer/ConversationStore.js";
 import { randomUUID } from "node:crypto";
 import { GapService } from "./gaps/GapService.js";
@@ -30,7 +31,10 @@ const store = new JsonKnowledgeStore(dataFile, new JsonFilePersist<StoredKnowled
 const client = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
 const usage = new UsageMeter(new JsonFilePersist<UsageRecord>(path.join(dataDir, "usage.json")));
 const answers = client
-  ? new AnswerService(claudeCreateMessage(client, usage), new SmartRetriever(store), new MemoryConversationStore())
+  ? new AnswerService(claudeCreateMessage(client, usage), new SmartRetriever(store), new MemoryConversationStore(), {
+      store: new AnswerMemory(new JsonFilePersist<MemoryEntry>(path.join(dataDir, "answer-memory.json"))),
+      version: () => store.version(),
+    })
   : null;
 const stats = new PersistedStats(new JsonFilePersist(path.join(dataDir, "question-stats.json")));
 const noAnalyzer = async () => {

@@ -1,4 +1,4 @@
-import type { AnalyzeGap, Gap, GapCandidate, GapReason, GapStore } from "./types.js";
+import type { AnalyzeGap, Gap, GapCandidate, GapReason, GapStore, GapVerdict } from "./types.js";
 import type { StatsStore } from "../reports/types.js";
 
 export const MAX_EXAMPLES = 5;
@@ -26,15 +26,16 @@ export class GapService {
   }
 
   /** Analyses one question. Runs one at a time so two similar questions never create two gaps. */
-  consider(candidate: GapCandidate): Promise<Gap | null> {
-    const run = this.queue.then(() => this.considerNow(candidate));
+  consider(candidate: GapCandidate, onVerdict?: (kind: GapVerdict["kind"]) => void): Promise<Gap | null> {
+    const run = this.queue.then(() => this.considerNow(candidate, onVerdict));
     this.queue = run.catch(() => undefined);
     return run;
   }
 
-  private async considerNow(c: GapCandidate): Promise<Gap | null> {
+  private async considerNow(c: GapCandidate, onVerdict?: (kind: GapVerdict["kind"]) => void): Promise<Gap | null> {
     const all = await this.store.list();
     const verdict = await this.analyze(c, all.map(({ id, titleHe, titleEn }) => ({ id, titleHe, titleEn })));
+    onVerdict?.(verdict.kind);
     if (!c.notHelpful) await this.stats?.record({ outcome: verdict.kind, at: this.now().toISOString() });
     if (verdict.kind === "off_topic") return null;
     if (verdict.kind === "answered" && !c.notHelpful) return null;
@@ -76,6 +77,41 @@ export class GapService {
 
   async list() {
     return (await this.store.list("open")).sort((a, b) => b.count - a.count || b.lastAskedAt.localeCompare(a.lastAskedAt));
+  }
+
+  /** Claude already said how well the answer covered the question - count it without a second call. */
+  async recordOutcome(outcome: "answered" | "off_topic") {
+    await this.stats?.record({ outcome, at: this.now().toISOString() });
+  }
+
+  /**
+   * The same question was answered from memory. If it was a gap, count it on that gap (no Claude call).
+   * Returns the gap, or null when the remembered answer wasn't a gap or the gap is gone.
+   */
+  async recordRepeat(c: GapCandidate, remembered: { outcome?: "answered" | "partial" | "no_info" | "off_topic"; gapId?: string | null }) {
+    if (!remembered.outcome) return null;
+    const at = this.now().toISOString();
+    await this.stats?.record({ outcome: remembered.outcome, at });
+    if (!remembered.gapId) return null;
+    const run = this.queue.then(async () => {
+      const gap = await this.store.get(remembered.gapId!);
+      if (!gap) return null;
+      gap.count += 1;
+      gap.lastAskedAt = at;
+      const reason: GapReason = remembered.outcome === "partial" ? "partial" : "no_info";
+      gap.examples = [{ question: c.question.slice(0, 500), lang: c.lang, reason, askedAt: at }, ...gap.examples].slice(0, MAX_EXAMPLES);
+      await this.store.save(gap);
+      return gap;
+    });
+    this.queue = run.catch(() => undefined);
+    return run;
+  }
+
+  /** Analyse and also return what was decided, for the answer memory. */
+  async considerWithOutcome(c: GapCandidate): Promise<{ gap: Gap | null; outcome: GapVerdict["kind"] }> {
+    let outcome: GapVerdict["kind"] = "answered";
+    const gap = await this.consider(c, (k) => (outcome = k));
+    return { gap, outcome };
   }
 
   async listClosed() {

@@ -32,6 +32,11 @@ export class JsonKnowledgeStore implements KnowledgeStore {
     return item && localize(item, lang);
   }
 
+  async version() {
+    const up = this.uploads ? await this.uploads.read() : [];
+    return `${up.length}:${up.at(-1)?.id ?? ""}`;
+  }
+
   async add(item: StoredKnowledgeItem) {
     if (!this.uploads) throw new Error("this knowledge store is read-only");
     const all = await this.uploads.read();

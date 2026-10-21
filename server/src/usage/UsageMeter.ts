@@ -1,7 +1,8 @@
 import type { Persist } from "../reports/collections.js";
 import { costUsd, type TokenUsage } from "./pricing.js";
 
-export type UsageKind = "answer" | "gap_check" | "doc_analysis" | "translation";
+/** "memory" = a question answered from memory: counted as a question, costs nothing */
+export type UsageKind = "answer" | "gap_check" | "doc_analysis" | "translation" | "memory";
 
 export interface UsageRecord {
   at: string;
@@ -16,6 +17,8 @@ export interface UsageRecord {
 
 export interface UsageSummary {
   questions: number;
+  /** of the questions, how many were answered from memory */
+  fromMemory: number;
   calls: number;
   usd: number;
   perQuestionUsd: number;
@@ -35,6 +38,7 @@ export class UsageMeter {
 
   async record(kind: UsageKind, model: string, u: TokenUsage | null | undefined) {
     if (!u) return;
+    if (kind === "memory") u = {};
     const rec: UsageRecord = {
       at: this.now().toISOString(), kind, model,
       input: u.input_tokens ?? 0, output: u.output_tokens ?? 0,
@@ -49,11 +53,11 @@ export class UsageMeter {
 
   async summary(sinceIso: string): Promise<UsageSummary> {
     const recs = (await this.p.read()).filter((r) => r.at > sinceIso);
-    const byKind: Record<UsageKind, number> = { answer: 0, gap_check: 0, doc_analysis: 0, translation: 0 };
+    const byKind: Record<UsageKind, number> = { answer: 0, gap_check: 0, doc_analysis: 0, translation: 0, memory: 0 };
     for (const r of recs) byKind[r.kind] += r.usd;
     const usd = recs.reduce((s, r) => s + r.usd, 0);
-    const questions = recs.filter((r) => r.kind === "answer").length;
-    return { questions, calls: recs.length, usd, perQuestionUsd: questions ? (byKind.answer + byKind.gap_check) / questions : 0, byKind };
+    const questions = recs.filter((r) => r.kind === "answer" || r.kind === "memory").length;
+    return { questions, fromMemory: recs.filter((r) => r.kind === "memory").length, calls: recs.length, usd, perQuestionUsd: questions ? (byKind.answer + byKind.gap_check) / questions : 0, byKind };
   }
 }
 
