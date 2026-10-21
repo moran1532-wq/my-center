@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ask, AskError, sendFeedback, type AskResult } from "../api";
 import { useLang } from "../i18n";
 import TypeBadge from "../TypeBadge";
+import CopyButton from "../CopyButton";
 
 interface Turn {
   question: string;
@@ -100,7 +101,10 @@ export default function AskPage() {
 
         {turns.map((turn, i) => (
           <div key={i} className="turn">
-            <div className="bubble question" dir="auto">{turn.question}</div>
+            <div className="question-row">
+              <div className="bubble question" dir="auto">{turn.question}</div>
+              <CopyButton text={turn.question} />
+            </div>
             {turn.result && (
               <button
                 type="button"
@@ -125,6 +129,7 @@ export default function AskPage() {
             )}
             {turn.result?.status === "answered" && (
               <div className="answer-footer">
+                <CopyButton text={turn.result.segments.map((s) => s.text).join("").trim()} />
                 {turn.feedback === "sent" ? (
                   <span className="muted small">{t.notHelpfulThanks}</span>
                 ) : (
@@ -134,7 +139,12 @@ export default function AskPage() {
                 )}
               </div>
             )}
-            {turn.error && <div className="bubble error-bubble">{errorText(turn.error)}</div>}
+            {turn.error && (
+              <div className="error-row">
+                <div className="bubble error-bubble">{errorText(turn.error)}</div>
+                <CopyButton text={errorText(turn.error)} />
+              </div>
+            )}
           </div>
         ))}
 

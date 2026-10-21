@@ -312,3 +312,8 @@ blockquote {
 .closed-line { color: var(--ans); }
 .closed-line a { color: var(--accent); }
 @media (max-width: 600px) { .field-grid { grid-template-columns: minmax(0, 1fr); } }
+.question-row { display: flex; align-items: center; gap: 6px; align-self: flex-start; max-width: 90%; }
+.question-row .bubble.question { max-width: 100%; }
+.error-row { display: flex; align-items: center; gap: 6px; align-self: flex-end; }
+.answer-footer { gap: 12px; }
+.copy-btn { white-space: nowrap; }
