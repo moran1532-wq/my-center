@@ -3,10 +3,10 @@ gsd_state_version: '1.0'
 status: planning
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 0
   completed_plans: 0
-  percent: 40
+  percent: 60
 ---
 
 # Project State
@@ -22,10 +22,10 @@ See: .planning/PROJECT.md (updated 2026-10-21)
 
 Phase: 3 of 5 (Gap Tracking)
 Plan: 0 of 0 in current phase
-Status: Built - awaiting acceptance test
+Status: Ready to discuss
 Last activity: 2026-10-21 - Project scoped, summary and 5-phase roadmap approved by owner
 
-Progress: [████░░░░░░] 40%
+Progress: [██████░░░░] 60%
 
 ## Session Log
 - 2026-10-21: Scoping done in a cloud session. Owner chose to continue on her own computer
@@ -35,3 +35,4 @@ Progress: [████░░░░░░] 40%
 - 2026-10-21: Phase 2 built (server: Claude w/ citations + caching + fallbacks, convo store, 20 q/conversation cap; client: ask page, sources panel, browse tab). 16 tests pass. Preview uses claude.ai page runtime (sample) since no API key yet. Next: owner acceptance + real key test.
 - 2026-10-21: Phase 2 acceptance passed 5/5 in preview (blank-screen bug found in test 1: scrollIntoView in frame → fixed). OPEN before going live: run the server path once with a real ANTHROPIC_API_KEY; add login. Next: phase 3 discussion.
 - 2026-10-21: Phase 3 built (gap analyzer w/ structured output, GapService shared with preview, JSON gap file, gaps tab, didn't-help, not-a-gap + undo). 27 tests pass. Next: owner acceptance.
+- 2026-10-21: Phase 3 acceptance passed 6/6 (found+fixed: didn't-help double count race; added gaps auto refresh). Next: phase 4 discussion.
